@@ -1,20 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowUpRight, ShieldCheck, Heart } from 'lucide-react';
-import { useStore } from '../context/StoreContext';
 
 export default function Footer() {
-  const { setActiveTab } = useStore();
-
-  const handleNav = (tabId) => {
-    setActiveTab(tabId);
-    const elem = document.getElementById(tabId);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
   return (
     <footer style={{ borderTop: '1px solid var(--border-dim)', backgroundColor: 'var(--bg-dark)', padding: '70px 0 30px' }}>
       <div className="container">
@@ -22,12 +10,12 @@ export default function Footer() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', marginBottom: '60px' }}>
           {/* Brand Info */}
           <div style={{ gridColumn: 'span 2' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
               <img src="/loopstep-logo.svg" alt="LoopStep Logo" style={{ width: '36px', height: '36px' }} />
               <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.3rem', color: '#fff' }}>
                 LOOP<span style={{ color: 'var(--primary)' }}>STEP</span>
               </span>
-            </div>
+            </Link>
 
             <p style={{ marginTop: '14px', color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '380px', lineHeight: 1.6 }}>
               “Step Forward. Replace. Repeat.” A mechanical twist-lock modular footwear system engineered to separate component wear from shoe replacement.
@@ -52,31 +40,31 @@ export default function Footer() {
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Shop & Configure
             </span>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px', fontSize: '0.88rem', color: 'var(--text-muted)', padding: 0 }}>
               <li>
-                <button type="button" onClick={() => handleNav('shoes')} style={{ color: 'inherit', textAlign: 'left' }}>
+                <Link to="/shop" style={{ color: 'inherit', textDecoration: 'none' }}>
                   Our Shoes (Terra, Drift, Ridge)
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('soles')} style={{ color: 'inherit', textAlign: 'left' }}>
+                <Link to="/soles" style={{ color: 'inherit', textDecoration: 'none' }}>
                   Standard Edition Sole (₹200)
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('soles')} style={{ color: 'inherit', textAlign: 'left' }}>
+                <Link to="/soles" style={{ color: 'inherit', textDecoration: 'none' }}>
                   Sports Edition Sole (₹500)
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('soles')} style={{ color: 'inherit', textAlign: 'left' }}>
+                <Link to="/soles" style={{ color: 'inherit', textDecoration: 'none' }}>
                   Trail Edition Sole (₹700)
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('customize')} style={{ color: 'inherit', textAlign: 'left' }}>
-                  3D Sole Studio Configurator
-                </button>
+                <Link to="/sole-studio" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 700 }}>
+                  3D Sole Studio Configurator →
+                </Link>
               </li>
             </ul>
           </div>
@@ -86,37 +74,66 @@ export default function Footer() {
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Right to Repair
             </span>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px', fontSize: '0.88rem', color: 'var(--text-muted)', padding: 0 }}>
               <li>
-                <button type="button" onClick={() => handleNav('refit')} style={{ color: 'inherit', textAlign: 'left' }}>
-                  ReFit™ Universal Adapter (₹50)
-                </button>
+                <Link to="/refit" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  ReFit™ Universal Adapter
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('scan')} style={{ color: 'inherit', textAlign: 'left' }}>
-                  3D Optical Foot Fitment Scan
-                </button>
+                <Link to="/3d-scan" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  3D Shoe Fitment Scanner
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('technology')} style={{ color: 'inherit', textAlign: 'left' }}>
-                  Twist-Lock Mechanism Specs
-                </button>
+                <Link to="/technology" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  Twist-Lock Mechanism Demo
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('engineering')} style={{ color: 'inherit', textAlign: 'left' }}>
-                  PA66-GF30 Material Spec Sheet
-                </button>
+                <Link to="/materials" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  Materials & Engineering Specs
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('sustainability')} style={{ color: 'inherit', textAlign: 'left' }}>
-                  1:1 Sole Donation Pledge
-                </button>
+                <Link to="/sustainability" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  Impact & Savings Calculator
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Project & Support */}
+          <div>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Project & Support
+            </span>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px', fontSize: '0.88rem', color: 'var(--text-muted)', padding: 0 }}>
+              <li>
+                <Link to="/about" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  About & FAQ
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  Contact & Inquiries
+                </Link>
+              </li>
+              <li>
+                <Link to="/cart" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  Cart & Checkout
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  Admin Dashboard
+                </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Legal & Hackathon Disclaimer */}
+        {/* Bottom Bar */}
         <div
           style={{
             borderTop: '1px solid var(--border-dim)',
@@ -125,20 +142,19 @@ export default function Footer() {
             flexWrap: 'wrap',
             justifyContent: 'space-between',
             alignItems: 'center',
-            gap: '14px',
-            fontSize: '0.75rem',
-            fontFamily: 'var(--font-mono)',
+            gap: '16px',
+            fontSize: '0.8rem',
             color: 'var(--text-dim)'
           }}
         >
           <div>
-            © 2026 LOOPSTEP INNOVATIONS · RIGHT TO REPAIR FOR FOOTWEAR
+            © {new Date().getFullYear()} LoopStep Footwear Innovations Pvt. Ltd. Patent Pending.
           </div>
 
-          <div style={{ display: 'flex', gap: '18px' }}>
-            <span>PATENT-PENDING MECHANISM</span>
-            <span>PROTOTYPE VALIDATION</span>
-            <span>CIRCULAR FOOTWEAR ARCHITECTURE</span>
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <Link to="/about" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
+            <Link to="/about" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Service</Link>
+            <Link to="/technology" style={{ color: 'inherit', textDecoration: 'none' }}>Patent Documentation</Link>
           </div>
         </div>
       </div>

@@ -1,46 +1,34 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Menu, X, Scan, Sliders, Shield, User, ArrowRight } from 'lucide-react';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Menu, X, Sliders, Sparkles, Shield, User, ArrowRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
-export default function Navbar({ onOpenCart }) {
-  const { activeTab, setActiveTab, totalCartCount, setIsCartOpen } = useStore();
+export default function Navbar() {
+  const { totalCartCount } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const navLinks = [
-    { id: 'home', label: 'Home' },
-    { id: 'technology', label: 'Technology' },
-    { id: 'soles', label: 'Soles' },
-    { id: 'customize', label: 'Customize' },
-    { id: 'scan', label: '3D Scan' },
-    { id: 'refit', label: 'ReFit™' },
-    { id: 'shoes', label: 'Shoes' },
-    { id: 'sustainability', label: 'Impact' },
-    { id: 'business', label: 'Economics' },
-    { id: 'about', label: 'About' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'contact', label: 'Contact' }
+  const primaryNavItems = [
+    { to: '/', label: 'Home' },
+    { to: '/technology', label: 'Technology' },
+    { to: '/3d-scan', label: '3D Scan' },
+    { to: '/sole-studio', label: 'Sole Studio', badge: '3D' },
+    { to: '/refit', label: 'ReFit™' },
+    { to: '/soles', label: 'Collection' },
+    { to: '/shop', label: 'Shop' },
+    { to: '/sustainability', label: 'Sustainability' },
+    { to: '/materials', label: 'Materials' },
+    { to: '/about', label: 'About' },
+    { to: '/contact', label: 'Contact' }
   ];
-
-  const handleNavClick = (id) => {
-    setActiveTab(id);
-    setMobileMenuOpen(false);
-
-    // Scroll smoothly to section if on home
-    const elem = document.getElementById(id);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
 
   return (
     <header
       style={{
         position: 'sticky',
         top: 0,
-        zIndex: 900,
-        backgroundColor: 'rgba(12, 16, 20, 0.88)',
+        zIndex: 999,
+        backgroundColor: 'rgba(12, 16, 20, 0.92)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--border-dim)'
@@ -57,15 +45,14 @@ export default function Navbar({ onOpenCart }) {
         }}
       >
         {/* Brand Logo & Name */}
-        <button
-          type="button"
-          onClick={() => handleNavClick('home')}
+        <Link
+          to="/"
           style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}
         >
           <img
             src="/loopstep-logo.svg"
             alt="LoopStep Logo"
-            style={{ width: '38px', height: '38px', borderRadius: '10px' }}
+            style={{ width: '36px', height: '36px', borderRadius: '10px' }}
           />
           <span
             style={{
@@ -78,137 +65,134 @@ export default function Navbar({ onOpenCart }) {
           >
             LOOP<span style={{ color: 'var(--primary)' }}>STEP</span>
           </span>
-        </button>
+        </Link>
 
         {/* Desktop Navigation Links */}
-        <nav style={{ display: 'none', lgDisplay: 'flex' }} className="desktop-nav">
+        <nav className="desktop-nav" style={{ display: 'flex', alignItems: 'center' }}>
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '2px',
               backgroundColor: 'rgba(255, 255, 255, 0.03)',
-              padding: '4px',
+              padding: '4px 6px',
               borderRadius: 'var(--radius-full)',
               border: '1px solid var(--border-dim)'
             }}
           >
-            {navLinks.map((link) => {
-              const isActive = activeTab === link.id;
-              return (
-                <button
-                  key={link.id}
-                  type="button"
-                  onClick={() => handleNavClick(link.id)}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.82rem',
-                    fontWeight: 600,
-                    color: isActive ? '#000' : 'var(--text-muted)',
-                    backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {link.label}
-                </button>
-              );
-            })}
+            {primaryNavItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className={({ isActive }) =>
+                  `nav-pill ${isActive ? 'active' : ''}`
+                }
+                style={({ isActive }) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  padding: '7px 12px',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.82rem',
+                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? 'var(--primary)' : 'var(--text-muted)',
+                  backgroundColor: isActive ? 'rgba(198, 241, 53, 0.12)' : 'transparent',
+                  textDecoration: 'none',
+                  transition: 'all 0.15s ease',
+                  whiteSpace: 'nowrap'
+                })}
+              >
+                <span>{item.label}</span>
+                {item.badge && (
+                  <span
+                    style={{
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      backgroundColor: 'var(--primary)',
+                      color: '#000',
+                      padding: '1px 5px',
+                      borderRadius: '4px',
+                      lineHeight: 1.2
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </NavLink>
+            ))}
           </div>
         </nav>
 
-        {/* Right Action Icons (3D Scan, Cart, Admin, Mobile Toggle) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Quick Scan Action */}
-          <button
-            type="button"
-            onClick={() => handleNavClick('scan')}
-            className="btn-secondary btn-sm"
-            style={{ display: 'none', smDisplay: 'flex', gap: '6px' }}
-          >
-            <Scan size={15} color="var(--primary)" />
-            <span>3D Scan</span>
-          </button>
-
-          {/* Cart Trigger Button */}
-          <button
-            type="button"
-            onClick={() => setIsCartOpen(true)}
+        {/* Right Action Icons (Cart & Mobile Menu) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Cart Route Link */}
+          <Link
+            to="/cart"
             style={{
               position: 'relative',
-              width: '42px',
-              height: '42px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid var(--border-light)',
-              display: 'grid',
-              placeItems: 'center',
-              color: 'var(--text-main)',
-              transition: '0.2s'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 14px',
+              borderRadius: 'var(--radius-full)',
+              backgroundColor: totalCartCount > 0 ? 'rgba(198, 241, 53, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+              border: totalCartCount > 0 ? '1px solid var(--primary)' : '1px solid var(--border-dim)',
+              color: totalCartCount > 0 ? 'var(--primary)' : '#fff',
+              textDecoration: 'none',
+              fontSize: '0.82rem',
+              fontWeight: 700
             }}
-            aria-label="Shopping Cart"
           >
-            <ShoppingBag size={18} />
+            <ShoppingBag size={17} />
+            <span className="cart-label">Cart</span>
             {totalCartCount > 0 && (
               <span
                 style={{
-                  position: 'absolute',
-                  top: '-4px',
-                  right: '-4px',
-                  backgroundColor: 'var(--primary)',
-                  color: '#000',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   width: '20px',
                   height: '20px',
+                  backgroundColor: 'var(--primary)',
+                  color: '#000',
                   borderRadius: '50%',
-                  display: 'grid',
-                  placeItems: 'center',
-                  boxShadow: '0 0 10px rgba(198, 241, 53, 0.6)'
+                  fontSize: '0.72rem',
+                  fontWeight: 800
                 }}
               >
                 {totalCartCount}
               </span>
             )}
-          </button>
+          </Link>
 
-          {/* Admin link */}
-          <button
-            type="button"
-            onClick={() => handleNavClick('admin')}
-            style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '50%',
-              backgroundColor: activeTab === 'admin' ? 'rgba(198, 241, 53, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-              border: `1px solid ${activeTab === 'admin' ? 'var(--primary)' : 'var(--border-dim)'}`,
-              display: 'grid',
-              placeItems: 'center',
-              color: activeTab === 'admin' ? 'var(--primary)' : 'var(--text-muted)'
-            }}
-            title="Admin Console (PIN: 2026)"
+          {/* Quick 3D Studio Button */}
+          <Link
+            to="/sole-studio"
+            className="btn-primary desktop-cta"
+            style={{ padding: '8px 16px', fontSize: '0.8rem', borderRadius: 'var(--radius-full)' }}
           >
-            <User size={18} />
-          </button>
+            <Sliders size={14} /> 3D Studio
+          </Link>
 
-          {/* Mobile Menu Hamburger */}
+          {/* Mobile Menu Toggle Button */}
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid var(--border-dim)',
-              display: 'grid',
-              placeItems: 'center',
-              color: 'var(--text-main)'
-            }}
             className="mobile-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle navigation menu"
+            style={{
+              display: 'none',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              border: '1px solid var(--border-dim)',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              color: '#fff',
+              cursor: 'pointer'
+            }}
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -219,54 +203,75 @@ export default function Navbar({ onOpenCart }) {
       {mobileMenuOpen && (
         <div
           style={{
-            backgroundColor: 'var(--bg-glass-heavy)',
-            backdropFilter: 'blur(20px)',
-            borderTop: '1px solid var(--border-dim)',
-            padding: '20px',
+            backgroundColor: '#0c1014',
+            borderBottom: '1px solid var(--border-dim)',
+            padding: '20px 24px 30px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px'
+            gap: '12px'
           }}
+          className="mobile-drawer"
         >
-          {navLinks.map((link) => (
-            <button
-              key={link.id}
-              type="button"
-              onClick={() => handleNavClick(link.id)}
-              style={{
-                padding: '12px 18px',
-                borderRadius: 'var(--radius-sm)',
-                textAlign: 'left',
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                color: activeTab === link.id ? 'var(--primary)' : 'var(--text-main)',
-                backgroundColor: activeTab === link.id ? 'rgba(198, 241, 53, 0.1)' : 'transparent',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+            {primaryNavItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                onClick={() => setMobileMenuOpen(false)}
+                style={({ isActive }) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  backgroundColor: isActive ? 'rgba(198, 241, 53, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+                  border: isActive ? '1px solid var(--primary)' : '1px solid var(--border-dim)',
+                  color: isActive ? 'var(--primary)' : '#e2e8f0',
+                  textDecoration: 'none',
+                  fontSize: '0.86rem',
+                  fontWeight: isActive ? 700 : 500
+                })}
+              >
+                <span>{item.label}</span>
+                {item.badge && (
+                  <span
+                    style={{
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      backgroundColor: 'var(--primary)',
+                      color: '#000',
+                      padding: '1px 5px',
+                      borderRadius: '4px'
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </NavLink>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <Link
+              to="/sole-studio"
+              onClick={() => setMobileMenuOpen(false)}
+              className="btn-primary"
+              style={{ flex: 1, padding: '12px', textAlign: 'center', fontSize: '0.86rem' }}
             >
-              <span>{link.label}</span>
-              {activeTab === link.id && <ArrowRight size={16} color="var(--primary)" />}
-            </button>
-          ))}
+              <Sliders size={16} /> Open 3D Studio
+            </Link>
+            <Link
+              to="/cart"
+              onClick={() => setMobileMenuOpen(false)}
+              className="btn-secondary"
+              style={{ padding: '12px 16px', fontSize: '0.86rem' }}
+            >
+              Cart ({totalCartCount})
+            </Link>
+          </div>
         </div>
       )}
-
-      {/* Responsive media query helper via inline style tag */}
-      <style>{`
-        @media (min-width: 1024px) {
-          .desktop-nav { display: flex !important; }
-          .mobile-toggle { display: none !important; }
-        }
-        @media (max-width: 1023px) {
-          .desktop-nav { display: none !important; }
-          .mobile-toggle { display: grid !important; }
-        }
-        @media (min-width: 640px) {
-          .sm\\:flex { display: flex !important; }
-        }
-      `}</style>
     </header>
   );
 }

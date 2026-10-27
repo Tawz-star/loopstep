@@ -297,3 +297,26 @@ select:focus {
     padding: 0 16px;
   }
 }
+
+/* Responsive Sole Studio & Navigation Rules */
+@media (max-width: 1100px) {
+  .desktop-nav {
+    display: none !important;
+  }
+  .desktop-cta {
+    display: none !important;
+  }
+  .mobile-toggle {
+    display: flex !important;
+  }
+  .sole-studio-grid {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .cart-label {
+    display: none;
+  }
+}

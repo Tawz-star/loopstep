@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .vercel
+assets_raw/
+public/models/sole_reference.stl
+public/models/鞋底.stl
