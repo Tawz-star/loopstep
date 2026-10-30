@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShoppingBag, Sliders, Check, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import { COMPLETE_SHOES } from '../data/mockData';
 import { useStore } from '../context/StoreContext';
 
 export default function ShoesCatalog({ onCustomizeSole }) {
-  const { addToCart, setActiveTab } = useStore();
+  const navigate = useNavigate();
+  const { addToCart } = useStore();
   const [selectedSizes, setSelectedSizes] = useState({
     'shoe-terra': 42,
     'shoe-drift': 42,
@@ -189,12 +191,11 @@ export default function ShoesCatalog({ onCustomizeSole }) {
                   <button
                     type="button"
                     onClick={() => {
-                      if (onCustomizeSole) onCustomizeSole('standard');
-                      else setActiveTab('customize');
+                      navigate('/sole-studio');
                     }}
                     className="btn-secondary"
                     style={{ padding: '12px 16px' }}
-                    title="Customize replacement soles for this upper"
+                    title="Customize this shoe in 3D"
                   >
                     <Sliders size={16} />
                   </button>

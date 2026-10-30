@@ -141,6 +141,15 @@ export default function CartDrawer({ onCheckout }) {
                     <p style={{ fontSize: '0.75rem', color: 'var(--primary)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
                       {item.edition || item.category} {item.size ? `· EU ${item.size}` : ''}
                     </p>
+                    {item.customDetails && (
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.3 }}>
+                        {item.customDetails.shoeModel && <span>Upper: {item.customDetails.shoeModel} · </span>}
+                        {item.customDetails.soleVariant && <span>Sole: {item.customDetails.soleVariant}</span>}
+                        {item.customDetails.shoePersonalization && item.customDetails.shoePersonalization !== 'NONE' && (
+                          <div style={{ color: 'var(--primary)' }}>"{item.customDetails.shoePersonalization}"</div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>

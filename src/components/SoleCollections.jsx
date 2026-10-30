@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowRight, Check, Sliders, Shield, Zap, Compass, Footprints } from 'lucide-react';
 import { SOLE_EDITIONS } from '../data/mockData';
 import { useStore } from '../context/StoreContext';
 
 export default function SoleCollections({ onCustomizeSole }) {
+  const navigate = useNavigate();
   const { addToCart, setActiveTab } = useStore();
   const [selectedEdition, setSelectedEdition] = useState(SOLE_EDITIONS[0]);
   const [selectedSize, setSelectedSize] = useState(42);
@@ -44,8 +46,7 @@ export default function SoleCollections({ onCustomizeSole }) {
           <button
             type="button"
             onClick={() => {
-              if (onCustomizeSole) onCustomizeSole(selectedEdition.id);
-              else setActiveTab('customize');
+              navigate('/sole-studio', { state: { scannedSpecs: { category: selectedEdition.id } } });
             }}
             className="btn-secondary"
           >

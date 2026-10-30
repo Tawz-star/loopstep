@@ -56,6 +56,7 @@ function MainAppShell() {
           <Route path="/technology" element={<TechnologyPage />} />
           <Route path="/3d-scan" element={<ScanPage />} />
           <Route path="/sole-studio" element={<SoleStudioPage />} />
+          <Route path="/customize" element={<SoleStudioPage />} />
           <Route path="/refit" element={<ReFitPage />} />
           <Route path="/soles" element={<SolesPage />} />
           <Route path="/shop" element={<ShopPage />} />

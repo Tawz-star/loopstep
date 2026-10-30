@@ -248,10 +248,14 @@ export default function ShopPage() {
                       <ShoppingBag size={15} /> Add to Cart
                     </button>
 
-                    {product.type === 'soles' && (
+                    {(product.type === 'soles' || product.type === 'shoes') && (
                       <Link
                         to="/sole-studio"
-                        state={{ scannedSpecs: { category: product.id } }}
+                        state={{
+                          scannedSpecs: {
+                            category: product.type === 'soles' ? product.id : 'standard'
+                          }
+                        }}
                         className="btn-secondary"
                         style={{ padding: '11px 14px', fontSize: '0.84rem' }}
                         title="Customize in 3D"

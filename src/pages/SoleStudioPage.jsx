@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Sparkles, Sliders, Bookmark, Trash2, ArrowRight, ShieldCheck, CheckCircle2, RotateCcw } from 'lucide-react';
-import SoleStudio3D from '../components/three/SoleStudio3D';
+import InteractiveCustomizer from '../components/customizer/InteractiveCustomizer';
 import { useStore } from '../context/StoreContext';
 
 export default function SoleStudioPage() {
@@ -22,7 +22,7 @@ export default function SoleStudioPage() {
             <span className="eyebrow">
               <Sparkles size={13} /> LOOPSTEP INNOVATION CORE
             </span>
-            <span className="badge-outline">REAL-TIME WEBGL 3D CONFIGURATOR</span>
+            <span className="badge-outline">INTERACTIVE 3D FOOTWEAR CUSTOMIZATION ENGINE</span>
           </div>
 
           <div
@@ -43,22 +43,22 @@ export default function SoleStudioPage() {
                   letterSpacing: '-0.03em'
                 }}
               >
-                3D Sole Studio
+                Interactive Footwear Studio
               </h1>
               <p
                 style={{
                   fontSize: '1rem',
                   color: 'var(--text-muted)',
                   marginTop: '8px',
-                  maxWidth: '680px',
+                  maxWidth: '720px',
                   lineHeight: 1.5
                 }}
               >
-                Inspect the sneaker geometry, detach the sole via a realistic 45° twist motion, configure material colorways and tread variants in real-time 3D, and reattach your custom configuration.
+                Select and customize your shoe upper, choose and customize your terrain replacement sole, combine both in real-time 3D assembly, and transfer your exact configuration to the cart.
               </p>
             </div>
 
-            {/* Quick Helper Badge */}
+            {/* Mechanical Certification Badge */}
             <div
               style={{
                 display: 'flex',
@@ -81,8 +81,8 @@ export default function SoleStudioPage() {
           </div>
         </div>
 
-        {/* Real-time 3D Product Configurator Viewport */}
-        <SoleStudio3D
+        {/* Real-time 3D Product Customization Engine */}
+        <InteractiveCustomizer
           initialCategory={activeCategory}
           onAddToCartSuccess={() => {
             navigate('/cart');
@@ -107,7 +107,7 @@ export default function SoleStudioPage() {
                   <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0 }}>Saved 3D Configurations</h3>
                 </div>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '4px 0 0' }}>
-                  Your locally persisted custom soles. Restore any saved configuration directly into the 3D viewport.
+                  Your locally persisted custom configurations.
                 </p>
               </div>
               <span className="badge-signal">{savedDesigns.length} SAVED</span>
@@ -122,7 +122,7 @@ export default function SoleStudioPage() {
             >
               {savedDesigns.map((dsg) => (
                 <div
-                  key={dsg.id}
+                  key={dsg.id || dsg.name}
                   className="card-interactive"
                   style={{
                     padding: '20px',
@@ -136,7 +136,7 @@ export default function SoleStudioPage() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>
-                        {dsg.modelVariant || 'LS-STD-v3D'}
+                        {dsg.shoeModel || 'Custom Sneaker'}
                       </span>
                       <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--primary)' }}>
                         ₹{dsg.price}
@@ -150,44 +150,37 @@ export default function SoleStudioPage() {
                     {/* Colorway chips */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '10px 0' }}>
                       <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Colors:</span>
-                      <span
-                        style={{
-                          width: '14px',
-                          height: '14px',
-                          borderRadius: '50%',
-                          backgroundColor: dsg.outsoleColor || '#141416',
-                          border: '1px solid #fff'
-                        }}
-                        title="Outsole"
-                      />
-                      <span
-                        style={{
-                          width: '14px',
-                          height: '14px',
-                          borderRadius: '50%',
-                          backgroundColor: dsg.sidewallColor || '#f4f4f4',
-                          border: '1px solid #fff'
-                        }}
-                        title="Sidewall"
-                      />
-                      <span
-                        style={{
-                          width: '14px',
-                          height: '14px',
-                          borderRadius: '50%',
-                          backgroundColor: dsg.accentColor || '#c6f135',
-                          border: '1px solid #fff'
-                        }}
-                        title="Accent"
-                      />
+                      {dsg.shoeColor && (
+                        <span
+                          style={{
+                            width: '14px',
+                            height: '14px',
+                            borderRadius: '50%',
+                            backgroundColor: dsg.shoeColor,
+                            border: '1px solid #fff'
+                          }}
+                          title="Shoe Color"
+                        />
+                      )}
+                      {dsg.outsoleColor && (
+                        <span
+                          style={{
+                            width: '14px',
+                            height: '14px',
+                            borderRadius: '50%',
+                            backgroundColor: dsg.outsoleColor,
+                            border: '1px solid #fff'
+                          }}
+                          title="Sole Color"
+                        />
+                      )}
                     </div>
 
                     <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span>Tread: <strong>{dsg.treadPattern || 'Wave Flex'}</strong></span>
-                      {dsg.laserEngraving && dsg.laserEngraving !== 'NONE' && (
-                        <span>Laser Engraving: <code>{dsg.laserEngraving}</code></span>
+                      <span>Sole: <strong>{dsg.soleCategory || 'Standard'}</strong></span>
+                      {dsg.shoePersonalization && (
+                        <span>Text: <code>{dsg.shoePersonalization}</code></span>
                       )}
-                      <span>Saved: {dsg.savedAt || 'Recently'}</span>
                     </div>
                   </div>
 
@@ -195,14 +188,13 @@ export default function SoleStudioPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        setActiveCategory(dsg.category || 'standard');
                         showToast(`Restored design: ${dsg.name}`);
                         window.scrollTo({ top: 120, behavior: 'smooth' });
                       }}
                       className="btn-primary"
                       style={{ flex: 1, padding: '8px 12px', fontSize: '0.78rem' }}
                     >
-                      <RotateCcw size={13} /> Load into 3D
+                      <RotateCcw size={13} /> Active
                     </button>
                     <button
                       type="button"
@@ -244,7 +236,7 @@ export default function SoleStudioPage() {
               <CheckCircle2 size={16} /> Genuine 3D Mesh Separation
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.5 }}>
-              The Dior B44 sneaker model in our viewport consists of independent upper meshes and outsole geometries. Color changes apply directly to the PBR materials of the sole without mutating the upper.
+              4 independent sneaker uppers and 3 distinct sole categories (Standard, Sports, Trail) load independently in their own scenes. No unrelated models overlap or pollute the viewport.
             </p>
           </div>
 
@@ -253,16 +245,16 @@ export default function SoleStudioPage() {
               <CheckCircle2 size={16} /> 45° Mechanical Twist Animation
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.5 }}>
-              The release state simulates the 45° counter-clockwise rotation required to disengage the 4 radial bayonet keyways before the sole drops vertically away from the Strobel board.
+              The release state simulates the 45° counter-clockwise rotation required to disengage the 4 radial bayonet keyways before the sole separates cleanly from the shoe chassis.
             </p>
           </div>
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--signal-blue)', fontWeight: 700, fontSize: '0.86rem' }}>
-              <CheckCircle2 size={16} /> CAD STL Inspection
+              <CheckCircle2 size={16} /> Precision CAD STL Geometry
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.5 }}>
-              Toggle the CAD Sole Reference switch in the engineering overlays to view the 3D Systems CAD toolpath geometry overlaid directly with the configured sole.
+              Includes the precision 3D CAD sole model with physical interlocking bayonet teeth and engineered mud-exclusion gasket channels.
             </p>
           </div>
         </div>

@@ -182,14 +182,22 @@ export default function CartPage() {
                           color: 'var(--text-muted)'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                          <span style={{ fontWeight: 700, color: '#fff' }}>Configured 3D Sole:</span>
-                          <span style={{ color: 'var(--primary)' }}>{item.customDetails.category}</span>
-                          <span>·</span>
-                          <span>Tread: {item.customDetails.treadPattern}</span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          {item.customDetails.shoeModel && (
+                            <span style={{ fontWeight: 700, color: '#fff' }}>Shoe: {item.customDetails.shoeModel} ({item.customDetails.shoeMaterial || 'Knit'})</span>
+                          )}
+                          {item.customDetails.soleVariant && (
+                            <>
+                              <span style={{ color: 'var(--text-dim)' }}>·</span>
+                              <span style={{ color: 'var(--primary)' }}>Sole: {item.customDetails.soleVariant} ({item.customDetails.treadPattern || 'Wave'})</span>
+                            </>
+                          )}
                         </div>
-                        {item.customDetails.laserEngraving && item.customDetails.laserEngraving !== 'NONE' && (
-                          <div>Laser Engraving: <code>{item.customDetails.laserEngraving}</code></div>
+                        {item.customDetails.shoePersonalization && item.customDetails.shoePersonalization !== 'NONE' && (
+                          <div style={{ color: 'var(--primary)' }}>Shoe Personalization: <code>{item.customDetails.shoePersonalization}</code></div>
+                        )}
+                        {item.customDetails.soleEngraving && item.customDetails.soleEngraving !== 'NONE' && (
+                          <div style={{ color: 'var(--signal-cyan)' }}>Laser Engraving: <code>{item.customDetails.soleEngraving}</code></div>
                         )}
                       </div>
                     )}

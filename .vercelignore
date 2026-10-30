@@ -1,0 +1,9 @@
+.git
+.github
+assets_raw/
+public/models/sole_reference.stl
+public/models/鞋底.stl
+public/textures/
+node_modules
+dist
+.vscode
