@@ -474,9 +474,9 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
                     <strong style={{ fontSize: '0.95rem', color: isSelected ? '#fff' : 'var(--text-main)' }}>
                       {model.name}
                     </strong>
-                    {model.sketchfabRef && (
+                    {model.id === 'shoe-02' && (
                       <span style={{ fontSize: '0.68rem', color: '#00F0FF', fontWeight: 600 }}>
-                        Ref: Sports Shoe – Test
+                        3D Asset: Adidas Terrex
                       </span>
                     )}
                     <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
@@ -507,11 +507,11 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
               <h3 style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: '8px' }}>
                 {activeShoeModel.name}
               </h3>
-              {activeShoeModel.sketchfabRef && (
+              {activeShoeModel.id === 'shoe-02' && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(0, 240, 255, 0.1)', border: '1px solid rgba(0, 240, 255, 0.25)', padding: '4px 10px', borderRadius: '6px', marginTop: '6px', marginBottom: '4px' }}>
-                  <Eye size={12} color="#00F0FF" />
+                  <Sparkles size={12} color="#00F0FF" />
                   <span style={{ fontSize: '0.74rem', color: '#00F0FF', fontWeight: 600 }}>
-                    Reference: {activeShoeModel.sketchfabRef.name} by {activeShoeModel.sketchfabRef.creator} (Sketchfab)
+                    3D Model: Adidas Terrex (High-Detail Trail Chassis & Reconstructed PBR)
                   </span>
                 </div>
               )}

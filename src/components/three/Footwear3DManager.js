@@ -31,22 +31,17 @@ export const SHOE_MODELS = [
   {
     id: 'shoe-02',
     name: 'LoopStep Drift',
-    tagline: 'Built to Run, Made to Last',
+    tagline: 'High-Performance Outdoor Trail & Sport',
     category: 'Performance Running',
     basePrice: 2899,
-    description: 'Aerodynamic low-cut runner with curved sprint toe-spring, dual-layer athletic knit, lateral TPU sprint cage, and athletic lacing. (Model reference: Sports Shoe – Test by schindelar3d).',
+    description: 'Authentic Adidas Terrex 3D sports shoe chassis with aggressive multi-terrain lugs, engineered breathable ripstop upper, and abrasion-resistant toe guard.',
     nodeRange: [20, 40],
-    defaultColor: '#1A1A1A', // Ink Black
-    defaultOverlay: '#2A3440',
+    defaultColor: '#FFFFFF', // Default pure white to showcase authentic Terrex diffuse textures without tint
+    defaultOverlay: '#1A1A1A',
     defaultAccent: '#00F0FF',
     thumbnail: '/images/shoe-drift.jpg',
     defaultSoleCategory: 'sports',
-    sketchfabRef: {
-      modelId: '7a31617a04be4fd899e735cadb0ea81c',
-      name: 'Sports Shoe - Test',
-      creator: 'schindelar3d',
-      url: 'https://sketchfab.com/models/7a31617a04be4fd899e735cadb0ea81c'
-    }
+    modelAsset: 'Terrex.obj (adidas-terrex.zip)'
   },
   {
     id: 'shoe-03',
@@ -242,22 +237,68 @@ export function loadSneakerGLTF() {
 }
 
 // Dedicated Sports Shoe (Drift) GLTF Loader
+// Dedicated Sports Shoe (Drift - Adidas Terrex) GLTF Loader with Reconstructed PBR Textures
 export function loadDriftGLTF() {
   if (cachedDriftGltfScene) return Promise.resolve(cachedDriftGltfScene);
   if (driftGltfLoadingPromise) return driftGltfLoadingPromise;
 
   driftGltfLoadingPromise = new Promise((resolve) => {
-    const loader = new GLTFLoader();
-    loader.load(
-      '/models/sports_shoe_drift.glb',
+    const gltfLoader = new GLTFLoader();
+    const textureLoader = new THREE.TextureLoader();
+
+    // Reconstruct all texture channels from adidas-terrex.zip
+    const diffuseMap = textureLoader.load('/models/drift/textures/Terrex_D.jpg');
+    diffuseMap.colorSpace = THREE.SRGBColorSpace;
+
+    const normalMap = textureLoader.load('/models/drift/textures/Terrex_N.jpg');
+    const roughnessMap = textureLoader.load('/models/drift/textures/Terrex_R.jpg');
+    const aoMap = textureLoader.load('/models/drift/textures/Terrex_AO.jpg');
+
+    gltfLoader.load(
+      '/models/drift/terrex_drift.glb',
       (gltf) => {
-        cachedDriftGltfScene = gltf.scene;
+        const scene = gltf.scene;
+        scene.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+
+            // Apply reconstructed PBR material with all supplied texture channels
+            const pbrMat = new THREE.MeshStandardMaterial({
+              name: 'Terrex_Reconstructed_PBR',
+              map: diffuseMap,
+              normalMap: normalMap,
+              normalScale: new THREE.Vector2(1.0, 1.0),
+              roughnessMap: roughnessMap,
+              roughness: 0.85,
+              metalness: 0.15,
+              aoMap: aoMap,
+              aoMapIntensity: 1.0
+            });
+            child.material = pbrMat;
+
+            // Ensure UV2 channel for AO map
+            if (child.geometry && !child.geometry.attributes.uv2 && child.geometry.attributes.uv) {
+              child.geometry.setAttribute('uv2', child.geometry.attributes.uv);
+            }
+          }
+        });
+
+        cachedDriftGltfScene = scene;
         resolve(cachedDriftGltfScene);
       },
       undefined,
-      () => {
-        // Fallback gracefully when custom GLB asset is pending local file drop
-        resolve(null);
+      (err) => {
+        console.warn('Could not load terrex_drift.glb, trying sports_shoe_drift.glb:', err);
+        gltfLoader.load(
+          '/models/sports_shoe_drift.glb',
+          (fallbackGltf) => {
+            cachedDriftGltfScene = fallbackGltf.scene;
+            resolve(cachedDriftGltfScene);
+          },
+          undefined,
+          () => resolve(null)
+        );
       }
     );
   });
@@ -365,20 +406,22 @@ function buildDriftUpper(driftGltfScene = null) {
     const bbox = new THREE.Box3().setFromObject(importedClone);
     const size = bbox.getSize(new THREE.Vector3());
 
-    // Scale to standard shoe dimensions (length ~ 1.40m)
-    const targetLength = 1.40;
-    const scaleFactor = size.x > 0 ? targetLength / size.x : 1.0;
-    importedClone.scale.setScalar(scaleFactor);
+    // Scale to standard shoe dimensions (length ~ 1.40m) if not already pre-scaled
+    if (Math.abs(size.x - 1.40) > 0.05 && size.x > 0) {
+      const targetLength = 1.40;
+      const scaleFactor = targetLength / size.x;
+      importedClone.scale.setScalar(scaleFactor);
 
-    // Recompute bbox after scaling
-    const scaledBbox = new THREE.Box3().setFromObject(importedClone);
-    const scaledCenter = scaledBbox.getCenter(new THREE.Vector3());
-    const scaledMin = scaledBbox.min;
+      // Recompute bbox after scaling
+      const scaledBbox = new THREE.Box3().setFromObject(importedClone);
+      const scaledCenter = scaledBbox.getCenter(new THREE.Vector3());
+      const scaledMin = scaledBbox.min;
 
-    // Center X & Z, and align sole connection plane exactly at datum Y = 0.012m
-    importedClone.position.x = -scaledCenter.x;
-    importedClone.position.z = -scaledCenter.z;
-    importedClone.position.y = 0.012 - scaledMin.y;
+      // Center X & Z, and align sole connection plane exactly at datum Y = 0.012m
+      importedClone.position.x = -scaledCenter.x;
+      importedClone.position.z = -scaledCenter.z;
+      importedClone.position.y = 0.012 - scaledMin.y;
+    }
 
     upperGroup.add(importedClone);
     return upperGroup;
@@ -1056,6 +1099,19 @@ export function applyShoeCustomization(upperGroup, options = {}) {
             mat.map = createPersonalizationTexture(personalizationText, '#141416', accentColor);
             mat.needsUpdate = true;
           }
+          return;
+        }
+
+        // Check if Terrex sports shoe model
+        if (name.includes('terrex') || matName.includes('terrex')) {
+          if (color.toUpperCase() === '#FFFFFF') {
+            mat.color.setHex(0xffffff); // Preserve authentic Adidas Terrex photographic textures
+          } else {
+            mat.color.copy(primaryCol); // Dynamic colorway tint
+          }
+          mat.roughness = roughness;
+          mat.metalness = metalness;
+          mat.needsUpdate = true;
           return;
         }
 

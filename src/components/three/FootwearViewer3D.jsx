@@ -56,7 +56,6 @@ export default function FootwearViewer3D({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isAutoRotate, setIsAutoRotate] = useState(false);
   const [cameraPreset, setCameraPreset] = useState('perspective');
-  const [viewModeSource, setViewModeSource] = useState('three'); // 'three' | 'sketchfab'
 
   // Animation interpolation state
   const currentAssemblyStateRef = useRef(assemblyState);
@@ -225,13 +224,6 @@ export default function FootwearViewer3D({
     };
   }, []);
 
-  // Reset external preview if switching away from shoe-02
-  useEffect(() => {
-    if (shoeModelId !== 'shoe-02' && viewModeSource === 'sketchfab') {
-      setViewModeSource('three');
-    }
-  }, [shoeModelId, viewModeSource]);
-
   // Update scene models whenever mode, shoeModelId, or soleVariantId changes
   useEffect(() => {
     const scene = sceneRef.current;
@@ -394,74 +386,6 @@ export default function FootwearViewer3D({
         </div>
       )}
 
-      {/* External Sketchfab Reference Model Embed View (for LoopStep Drift) */}
-      {shoeModelId === 'shoe-02' && viewModeSource === 'sketchfab' && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 10,
-            backgroundColor: '#0c1014'
-          }}
-        >
-          <iframe
-            title="Sports Shoe - Test - 3D model by schindelar3d"
-            src="https://sketchfab.com/models/7a31617a04be4fd899e735cadb0ea81c/embed?autostart=1&internal=1&tracking=0&ui_ar=0&ui_infos=0&ui_snapshots=0&ui_stop=0&ui_theatre=1&ui_watermark=0"
-            style={{ width: '100%', height: '100%', border: 'none' }}
-            allow="autoplay; fullscreen; xr-spatial-tracking"
-            allowFullScreen
-          />
-
-          {/* Reference Notice & Return Button */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '24px',
-              left: '16px',
-              zIndex: 20,
-              backgroundColor: 'rgba(12, 16, 20, 0.92)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(0, 240, 255, 0.35)',
-              borderRadius: 'var(--radius-md)',
-              padding: '10px 16px',
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '14px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.6)'
-            }}
-          >
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#00F0FF' }} />
-                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>
-                  Reference Model: Sports Shoe – Test by schindelar3d
-                </span>
-              </div>
-              <p style={{ margin: '3px 0 0', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                Sketchfab Source Reference • To customize colours, materials & sole assembly, switch to 3D Customizer Engine.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setViewModeSource('three')}
-              style={{
-                background: 'var(--primary)',
-                color: '#000',
-                border: 'none',
-                padding: '6px 14px',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
-            >
-              Switch to 3D Customizer
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Top Floating Viewport Toolbar */}
       <div
         style={{
@@ -510,54 +434,24 @@ export default function FootwearViewer3D({
             </span>
           </div>
 
-          {/* Dedicated Sketchfab Reference Switch for Drift */}
+          {/* Terrex Model Indicator for LoopStep Drift */}
           {shoeModelId === 'shoe-02' && (
             <div
               style={{
                 pointerEvents: 'auto',
                 display: 'flex',
-                gap: '3px',
-                backgroundColor: 'rgba(12, 16, 20, 0.9)',
-                backdropFilter: 'blur(10px)',
-                padding: '3px 4px',
-                borderRadius: 'var(--radius-full)',
-                border: '1px solid rgba(0, 240, 255, 0.25)'
+                alignItems: 'center',
+                gap: '6px',
+                backgroundColor: 'rgba(0, 240, 255, 0.1)',
+                border: '1px solid rgba(0, 240, 255, 0.3)',
+                padding: '5px 12px',
+                borderRadius: 'var(--radius-full)'
               }}
             >
-              <button
-                type="button"
-                onClick={() => setViewModeSource('three')}
-                style={{
-                  background: viewModeSource === 'three' ? 'var(--primary)' : 'transparent',
-                  color: viewModeSource === 'three' ? '#000' : 'var(--text-muted)',
-                  border: 'none',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  padding: '5px 11px',
-                  borderRadius: 'var(--radius-full)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                3D Customizer Engine
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewModeSource('sketchfab')}
-                style={{
-                  background: viewModeSource === 'sketchfab' ? '#00F0FF' : 'transparent',
-                  color: viewModeSource === 'sketchfab' ? '#000' : 'var(--text-muted)',
-                  border: 'none',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  padding: '5px 11px',
-                  borderRadius: 'var(--radius-full)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Sketchfab Reference 3D
-              </button>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#00F0FF' }} />
+              <span style={{ fontSize: '0.72rem', color: '#00F0FF', fontWeight: 700, letterSpacing: '0.03em' }}>
+                3D ASSET: ADIDAS TERREX
+              </span>
             </div>
           )}
         </div>
