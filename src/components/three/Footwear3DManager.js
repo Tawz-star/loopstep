@@ -9,6 +9,9 @@ let gltfLoadingPromise = null;
 let cachedStlGeometry = null;
 let stlLoadingPromise = null;
 
+let cachedDriftGltfScene = null;
+let driftGltfLoadingPromise = null;
+
 // The 4 Distinct Shoe Models & Categories
 export const SHOE_MODELS = [
   {
@@ -31,13 +34,19 @@ export const SHOE_MODELS = [
     tagline: 'Built to Run, Made to Last',
     category: 'Performance Running',
     basePrice: 2899,
-    description: 'Aerodynamic low-cut runner with curved sprint toe-spring, dual-layer athletic knit, and lateral TPU sprint stabilizer cage.',
+    description: 'Aerodynamic low-cut runner with curved sprint toe-spring, dual-layer athletic knit, lateral TPU sprint cage, and athletic lacing. (Model reference: Sports Shoe – Test by schindelar3d).',
     nodeRange: [20, 40],
     defaultColor: '#1A1A1A', // Ink Black
     defaultOverlay: '#2A3440',
     defaultAccent: '#00F0FF',
     thumbnail: '/images/shoe-drift.jpg',
-    defaultSoleCategory: 'sports'
+    defaultSoleCategory: 'sports',
+    sketchfabRef: {
+      modelId: '7a31617a04be4fd899e735cadb0ea81c',
+      name: 'Sports Shoe - Test',
+      creator: 'schindelar3d',
+      url: 'https://sketchfab.com/models/7a31617a04be4fd899e735cadb0ea81c'
+    }
   },
   {
     id: 'shoe-03',
@@ -232,6 +241,31 @@ export function loadSneakerGLTF() {
   return gltfLoadingPromise;
 }
 
+// Dedicated Sports Shoe (Drift) GLTF Loader
+export function loadDriftGLTF() {
+  if (cachedDriftGltfScene) return Promise.resolve(cachedDriftGltfScene);
+  if (driftGltfLoadingPromise) return driftGltfLoadingPromise;
+
+  driftGltfLoadingPromise = new Promise((resolve) => {
+    const loader = new GLTFLoader();
+    loader.load(
+      '/models/sports_shoe_drift.glb',
+      (gltf) => {
+        cachedDriftGltfScene = gltf.scene;
+        resolve(cachedDriftGltfScene);
+      },
+      undefined,
+      () => {
+        // Fallback gracefully when custom GLB asset is pending local file drop
+        resolve(null);
+      }
+    );
+  });
+
+  return driftGltfLoadingPromise;
+}
+
+
 // Load CAD STL model once
 export function loadSoleSTL() {
   if (cachedStlGeometry) return Promise.resolve(cachedStlGeometry);
@@ -308,11 +342,49 @@ function buildTerraUpper(gltfScene) {
   return upperGroup;
 }
 
-// Shoe Model 2: LoopStep Drift (Distinct Aerodynamic Performance Runner)
-function buildDriftUpper() {
+// Shoe Model 2: LoopStep Drift (Distinct Aerodynamic Performance Runner - Reference: Sports Shoe – Test by schindelar3d)
+function buildDriftUpper(driftGltfScene = null) {
   const upperGroup = new THREE.Group();
   upperGroup.name = 'ShoeUpper_Drift';
 
+  // If the authorized GLTF / GLB model is loaded
+  if (driftGltfScene) {
+    const importedClone = driftGltfScene.clone(true);
+    importedClone.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        if (Array.isArray(child.material)) {
+          child.material = child.material.map((m) => m.clone());
+        } else if (child.material) {
+          child.material = child.material.clone();
+        }
+      }
+    });
+
+    const bbox = new THREE.Box3().setFromObject(importedClone);
+    const size = bbox.getSize(new THREE.Vector3());
+
+    // Scale to standard shoe dimensions (length ~ 1.40m)
+    const targetLength = 1.40;
+    const scaleFactor = size.x > 0 ? targetLength / size.x : 1.0;
+    importedClone.scale.setScalar(scaleFactor);
+
+    // Recompute bbox after scaling
+    const scaledBbox = new THREE.Box3().setFromObject(importedClone);
+    const scaledCenter = scaledBbox.getCenter(new THREE.Vector3());
+    const scaledMin = scaledBbox.min;
+
+    // Center X & Z, and align sole connection plane exactly at datum Y = 0.012m
+    importedClone.position.x = -scaledCenter.x;
+    importedClone.position.z = -scaledCenter.z;
+    importedClone.position.y = 0.012 - scaledMin.y;
+
+    upperGroup.add(importedClone);
+    return upperGroup;
+  }
+
+  // High-precision Sports Runner Geometry (Modelled directly after Sports Shoe - Test reference)
   // 1. Aerodynamic Runner Vamp with pronounced toe spring curve
   const runnerShape = new THREE.Shape();
   runnerShape.moveTo(-0.72, 0.02);
@@ -347,12 +419,42 @@ function buildDriftUpper() {
   // 2. Anatomical Low-Cut Achilles Collar
   const collarGeo = new THREE.TorusGeometry(0.13, 0.032, 16, 32);
   collarGeo.rotateX(Math.PI / 2);
-  const collarMat = new THREE.MeshStandardMaterial({ color: 0x222a33, roughness: 0.8 });
+  const collarMat = new THREE.MeshStandardMaterial({ color: 0x222a33, roughness: 0.8, name: 'Drift_Collar' });
   const collarMesh = new THREE.Mesh(collarGeo, collarMat);
   collarMesh.position.set(-0.16, 0.48, 0);
   upperGroup.add(collarMesh);
 
-  // 3. Lateral TPU Sprint Cage Ribs (3 dynamic diagonal stabilizing struts)
+  // 3. Padded Sports Tongue
+  const tongueGeo = new THREE.BoxGeometry(0.28, 0.025, 0.15);
+  tongueGeo.rotateZ(0.48);
+  const tongueMat = new THREE.MeshStandardMaterial({ color: 0x1f252d, roughness: 0.8, name: 'Drift_Tongue' });
+  const tongueMesh = new THREE.Mesh(tongueGeo, tongueMat);
+  tongueMesh.position.set(0.04, 0.44, 0);
+  upperGroup.add(tongueMesh);
+
+  // 4. Criss-Cross Sports Laces (4 pairs across athletic instep)
+  const laceMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, roughness: 0.5, metalness: 0.2, name: 'Drift_Laces' });
+  const lacePositions = [-0.08, 0.02, 0.12, 0.22];
+  lacePositions.forEach((x, idx) => {
+    const y = 0.40 - idx * 0.04;
+    // Cross 1
+    const l1Geo = new THREE.CylinderGeometry(0.007, 0.007, 0.17, 8);
+    l1Geo.rotateX(0.7);
+    l1Geo.rotateZ(0.2);
+    const l1 = new THREE.Mesh(l1Geo, laceMat);
+    l1.position.set(x, y + 0.05, 0);
+    upperGroup.add(l1);
+
+    // Cross 2
+    const l2Geo = new THREE.CylinderGeometry(0.007, 0.007, 0.17, 8);
+    l2Geo.rotateX(-0.7);
+    l2Geo.rotateZ(0.2);
+    const l2 = new THREE.Mesh(l2Geo, laceMat);
+    l2.position.set(x, y + 0.05, 0);
+    upperGroup.add(l2);
+  });
+
+  // 5. Lateral TPU Sprint Stabilizer Cage Ribs (3 dynamic diagonal stabilizing struts)
   const cageMat = new THREE.MeshStandardMaterial({
     color: 0x2a3440,
     roughness: 0.3,
@@ -360,7 +462,7 @@ function buildDriftUpper() {
     name: 'Drift_Sprint_Cage'
   });
 
-  [-0.14, 0.02, 0.18].forEach((xOffset, i) => {
+  [-0.14, 0.02, 0.18].forEach((xOffset) => {
     const ribGeo = new THREE.CylinderGeometry(0.014, 0.018, 0.32, 16);
     ribGeo.rotateZ(0.35);
 
@@ -375,19 +477,18 @@ function buildDriftUpper() {
     upperGroup.add(ribRight);
   });
 
-  // 4. External TPU Heel Counter Cup
+  // 6. External TPU Heel Counter Cup
   const heelCupGeo = new THREE.CylinderGeometry(0.24, 0.27, 0.16, 24, 1, true, -Math.PI / 2, Math.PI);
   const heelCup = new THREE.Mesh(heelCupGeo, cageMat);
   heelCup.position.set(-0.52, 0.22, 0);
   heelCup.rotation.y = -Math.PI / 2;
   upperGroup.add(heelCup);
 
-  // 5. Heel Pull Tab
+  // 7. Heel Pull Tab with cyber neon accent
   const tabGeo = new THREE.BoxGeometry(0.02, 0.12, 0.06);
-  const tabMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.3 });
+  const tabMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.3, name: 'Drift_Accent_Tab' });
   const tab = new THREE.Mesh(tabGeo, tabMat);
   tab.position.set(-0.68, 0.48, 0);
-  tab.name = 'Drift_Accent_Tab';
   upperGroup.add(tab);
 
   return upperGroup;
@@ -544,7 +645,7 @@ function buildVanguardUpper() {
 }
 
 // Master Shoe Upper Dispatcher
-export function createShoeUpper(gltfScene, shoeIndex = 0) {
+export function createShoeUpper(gltfScene, shoeIndex = 0, driftGltfScene = null) {
   let upper = null;
   const shoeDef = SHOE_MODELS[shoeIndex] || SHOE_MODELS[0];
 
@@ -553,7 +654,7 @@ export function createShoeUpper(gltfScene, shoeIndex = 0) {
       upper = buildTerraUpper(gltfScene);
       break;
     case 'shoe-02':
-      upper = buildDriftUpper();
+      upper = buildDriftUpper(driftGltfScene);
       break;
     case 'shoe-03':
       upper = buildRidgeUpper();
@@ -955,6 +1056,22 @@ export function applyShoeCustomization(upperGroup, options = {}) {
             mat.map = createPersonalizationTexture(personalizationText, '#141416', accentColor);
             mat.needsUpdate = true;
           }
+          return;
+        }
+
+        // Check if Laces mesh
+        if (name.includes('lace') || matName.includes('lace')) {
+          mat.color.copy(accentCol);
+          mat.roughness = 0.5;
+          mat.needsUpdate = true;
+          return;
+        }
+
+        // Check if Tongue or Collar
+        if (name.includes('tongue') || matName.includes('tongue') || name.includes('collar') || matName.includes('collar')) {
+          mat.color.copy(overlayCol);
+          mat.roughness = 0.85;
+          mat.needsUpdate = true;
           return;
         }
 
