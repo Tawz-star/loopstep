@@ -9,7 +9,7 @@ let gltfLoadingPromise = null;
 let cachedStlGeometry = null;
 let stlLoadingPromise = null;
 
-// The 4 Shoe Models in the project
+// The 4 Distinct Shoe Models & Categories
 export const SHOE_MODELS = [
   {
     id: 'shoe-01',
@@ -17,7 +17,7 @@ export const SHOE_MODELS = [
     tagline: 'The Everyday Urban Keeper',
     category: 'Lifestyle & Urban',
     basePrice: 2499,
-    description: '100% recycled ocean-plastic knit upper with natural rubber cage and precision twist-lock receiver.',
+    description: '100% recycled ocean-plastic knit upper with natural rubber cage and precision twist-lock receiver. (Original Dior luxury silhouette).',
     nodeRange: [0, 20],
     defaultColor: '#C8161D', // LoopStep Red
     defaultOverlay: '#1A1A1A',
@@ -31,10 +31,10 @@ export const SHOE_MODELS = [
     tagline: 'Built to Run, Made to Last',
     category: 'Performance Running',
     basePrice: 2899,
-    description: 'High-tensile engineered performance weave with lateral TPU heel counter for athletic stabilization.',
+    description: 'Aerodynamic low-cut runner with curved sprint toe-spring, dual-layer athletic knit, and lateral TPU sprint stabilizer cage.',
     nodeRange: [20, 40],
     defaultColor: '#1A1A1A', // Ink Black
-    defaultOverlay: '#3A3A3A',
+    defaultOverlay: '#2A3440',
     defaultAccent: '#00F0FF',
     thumbnail: '/images/shoe-drift.jpg',
     defaultSoleCategory: 'sports'
@@ -45,10 +45,10 @@ export const SHOE_MODELS = [
     tagline: 'Trail-Ready, Adventure-Proof',
     category: 'Outdoor & Hiking',
     basePrice: 2999,
-    description: 'Abrasion-resistant ripstop upper with mudguard rubber wrap and reinforced Kevlar lace eyelets.',
+    description: 'Rugged mid-cut trail chassis with elevated padded ankle cuff, full-perimeter protective rock rand, and metal D-ring lace anchors.',
     nodeRange: [40, 60],
     defaultColor: '#4A6141', // Deep Moss
-    defaultOverlay: '#2C312E',
+    defaultOverlay: '#1E2522',
     defaultAccent: '#E7A93B',
     thumbnail: '/images/shoe-ridge.jpg',
     defaultSoleCategory: 'trail'
@@ -56,10 +56,10 @@ export const SHOE_MODELS = [
   {
     id: 'shoe-04',
     name: 'LoopStep Vanguard',
-    tagline: 'Aero Carbon Street Runner',
+    tagline: 'Aero Carbon Street High-Top',
     category: 'Aerodynamic Urban',
     basePrice: 3199,
-    description: 'Ultra-lightweight aerodynamic matrix textile with carbon-infused sidewall reinforcement.',
+    description: 'Futuristic architectural high-top with sculpted carbon-fiber torsion wings, rear aerodynamic heel spoiler, and modern asymmetric shroud.',
     nodeRange: [60, 80],
     defaultColor: '#1E40AF', // Deep Cobalt
     defaultOverlay: '#141416',
@@ -69,7 +69,7 @@ export const SHOE_MODELS = [
   }
 ];
 
-// The 3 Sole Categories and their selectable 3D model variants
+// The 3 Distinct Sole Categories & Models
 export const SOLE_CATEGORIES = [
   {
     id: 'standard',
@@ -79,13 +79,13 @@ export const SOLE_CATEGORIES = [
     thickness: '8 mm',
     durometer: '50-55 Shore A',
     weight: '145g',
-    description: 'Low-profile compression molded EVA with flexible natural rubber contact pads for relaxed city walking.',
+    description: 'Low-profile compression molded EVA with flexible wave flex roll channels for natural city walking.',
     variants: [
       {
         id: 'sole-std-01',
         name: 'Standard Wave-Flex',
         desc: 'Natural wave groove flex channels for smooth heel-to-toe roll.',
-        source: 'glb-model-1',
+        source: 'existing-standard',
         defaultColor: '#1A1A1A',
         defaultMidsole: '#F4F4F4',
         defaultAccent: '#C6F135',
@@ -96,7 +96,7 @@ export const SOLE_CATEGORIES = [
         id: 'sole-std-02',
         name: 'Standard City-Commute',
         desc: 'Ultra-lightweight 8mm commuter sole with micro-siped wet grip.',
-        source: 'glb-model-1',
+        source: 'existing-standard',
         defaultColor: '#2C312E',
         defaultMidsole: '#DFD8CE',
         defaultAccent: '#C6F135',
@@ -113,13 +113,13 @@ export const SOLE_CATEGORIES = [
     thickness: '12 mm',
     durometer: '60 Shore A',
     weight: '190g',
-    description: 'Dual-density stack with nitrogen-infused kinetic rebound insert and high torsional rigidity.',
+    description: 'Sculpted 12mm dual-density rocker sole with kinetic rebound flex windows, lateral stability outrigger, and hexagonal sprint traction pods.',
     variants: [
       {
         id: 'sole-spr-01',
-        name: 'Sports Dynamic-Hex',
+        name: 'Sports Kinetic-Hex',
         desc: 'Multi-directional hex traction cleats for explosive lateral sprint cuts.',
-        source: 'glb-model-2',
+        source: 'sports-kinetic',
         defaultColor: '#141416',
         defaultMidsole: '#F4F4F4',
         defaultAccent: '#00F0FF',
@@ -130,7 +130,7 @@ export const SOLE_CATEGORIES = [
         id: 'sole-spr-02',
         name: 'Sports Kinetic Rebound Pro',
         desc: 'Supercritical EVA core with carbon rubber traction pods.',
-        source: 'glb-model-2',
+        source: 'sports-kinetic',
         defaultColor: '#1A1A1A',
         defaultMidsole: '#C6F135',
         defaultAccent: '#FF5E1E',
@@ -147,13 +147,13 @@ export const SOLE_CATEGORIES = [
     thickness: '15 mm',
     durometer: '68 Shore A',
     weight: '240g',
-    description: 'Vulcanized high-traction rubber outsole with deep 5mm perimeter lugs and ballistic rock plate.',
+    description: '15mm mountain chassis with deep 5mm multi-angle chevron cleats, self-cleaning mud channels, and embedded ballistic rock plate.',
     variants: [
       {
         id: 'sole-trl-01',
         name: 'Trail Deep-Lug Mountain',
         desc: 'Aggressive 5mm multi-angle lugs with mud-shedding evacuation channels.',
-        source: 'glb-model-3',
+        source: 'trail-mountain',
         defaultColor: '#4A6141',
         defaultMidsole: '#2C312E',
         defaultAccent: '#E7A93B',
@@ -164,7 +164,7 @@ export const SOLE_CATEGORIES = [
         id: 'sole-trl-02',
         name: 'Trail Rock-Plate MudClaw',
         desc: 'Ballistic rock shield with wet-grip compound for shale & steep slopes.',
-        source: 'glb-model-4',
+        source: 'trail-mountain',
         defaultColor: '#2C312E',
         defaultMidsole: '#1A1A1A',
         defaultAccent: '#C8161D',
@@ -174,7 +174,7 @@ export const SOLE_CATEGORIES = [
       {
         id: 'sole-trl-cad',
         name: 'Engineered PA66 CAD Sole',
-        desc: 'Precision CAD model with physical radial bayonet locking teeth.',
+        desc: 'Precision 3D CAD model with physical radial bayonet locking teeth.',
         source: 'stl-cad',
         defaultColor: '#141416',
         defaultMidsole: '#38BDF8',
@@ -258,27 +258,28 @@ export function loadSoleSTL() {
   return stlLoadingPromise;
 }
 
-// Extract an independent Shoe Upper Group for a specific shoe index (0, 1, 2, 3)
-export function createShoeUpper(gltfScene, shoeIndex = 0) {
-  const shoeDef = SHOE_MODELS[shoeIndex] || SHOE_MODELS[0];
-  const [start, end] = shoeDef.nodeRange;
+// =====================================================================
+// SHOE MODEL BUILDERS
+// =====================================================================
 
+// Shoe Model 1: LoopStep Terra (Preserve Original Model Exactly)
+function buildTerraUpper(gltfScene) {
   const upperGroup = new THREE.Group();
-  upperGroup.name = `ShoeUpper_${shoeDef.id}`;
+  upperGroup.name = 'ShoeUpper_Terra';
 
   const collectedMeshes = [];
   const upperBox = new THREE.Box3();
 
-  for (let i = start; i < end; i++) {
+  // Nodes 0 to 20 in sneaker.glb
+  for (let i = 0; i < 20; i++) {
     const node = gltfScene.children[i];
     if (!node) continue;
     const name = (node.name || '').toLowerCase();
 
-    // Exclude plane nodes and basement/sole nodes
+    // Exclude plane nodes and sole/basement nodes
     if (name.startsWith('plane.')) continue;
     if (name.includes('basement')) continue;
 
-    // Clone node and its materials
     const clone = node.clone(true);
     clone.traverse((child) => {
       if (child.isMesh) {
@@ -297,32 +298,510 @@ export function createShoeUpper(gltfScene, shoeIndex = 0) {
     upperBox.union(new THREE.Box3().setFromObject(clone));
   }
 
-  // Calculate center offset on X and Z so that center of upper is at X=0, Z=0
+  // Center offset
   const center = upperBox.getCenter(new THREE.Vector3());
-
-  // Apply centering offset to all children
   collectedMeshes.forEach((mesh) => {
     mesh.position.x -= center.x;
     mesh.position.z -= center.z;
   });
 
-  // Attach reference metadata
-  upperGroup.userData = {
-    modelId: shoeDef.id,
-    modelName: shoeDef.name,
-    category: shoeDef.category,
-    basePrice: shoeDef.basePrice,
-    centerX: center.x,
-    centerZ: center.z
+  return upperGroup;
+}
+
+// Shoe Model 2: LoopStep Drift (Distinct Aerodynamic Performance Runner)
+function buildDriftUpper() {
+  const upperGroup = new THREE.Group();
+  upperGroup.name = 'ShoeUpper_Drift';
+
+  // 1. Aerodynamic Runner Vamp with pronounced toe spring curve
+  const runnerShape = new THREE.Shape();
+  runnerShape.moveTo(-0.72, 0.02);
+  runnerShape.bezierCurveTo(-0.76, 0.16, -0.55, 0.44, -0.18, 0.50);
+  runnerShape.bezierCurveTo(0.18, 0.52, 0.48, 0.32, 0.68, 0.10);
+  runnerShape.bezierCurveTo(0.72, 0.04, 0.68, 0.01, 0.58, 0.01);
+  runnerShape.bezierCurveTo(0.18, 0.01, -0.38, 0.01, -0.72, 0.02);
+
+  const extrudeSettings = {
+    steps: 6,
+    depth: 0.52,
+    bevelEnabled: true,
+    bevelThickness: 0.06,
+    bevelSize: 0.05,
+    bevelSegments: 4
   };
+  const runnerGeo = new THREE.ExtrudeGeometry(runnerShape, extrudeSettings);
+  runnerGeo.center();
+
+  const mainMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1a1a,
+    roughness: 0.65,
+    metalness: 0.15,
+    name: 'Drift_Main_Mesh'
+  });
+  const runnerMesh = new THREE.Mesh(runnerGeo, mainMat);
+  runnerMesh.position.set(0, 0.28, 0);
+  runnerMesh.castShadow = true;
+  runnerMesh.receiveShadow = true;
+  upperGroup.add(runnerMesh);
+
+  // 2. Anatomical Low-Cut Achilles Collar
+  const collarGeo = new THREE.TorusGeometry(0.13, 0.032, 16, 32);
+  collarGeo.rotateX(Math.PI / 2);
+  const collarMat = new THREE.MeshStandardMaterial({ color: 0x222a33, roughness: 0.8 });
+  const collarMesh = new THREE.Mesh(collarGeo, collarMat);
+  collarMesh.position.set(-0.16, 0.48, 0);
+  upperGroup.add(collarMesh);
+
+  // 3. Lateral TPU Sprint Cage Ribs (3 dynamic diagonal stabilizing struts)
+  const cageMat = new THREE.MeshStandardMaterial({
+    color: 0x2a3440,
+    roughness: 0.3,
+    metalness: 0.4,
+    name: 'Drift_Sprint_Cage'
+  });
+
+  [-0.14, 0.02, 0.18].forEach((xOffset, i) => {
+    const ribGeo = new THREE.CylinderGeometry(0.014, 0.018, 0.32, 16);
+    ribGeo.rotateZ(0.35);
+
+    // Lateral side
+    const ribLeft = new THREE.Mesh(ribGeo, cageMat);
+    ribLeft.position.set(xOffset, 0.28, 0.27);
+    upperGroup.add(ribLeft);
+
+    // Medial side
+    const ribRight = new THREE.Mesh(ribGeo, cageMat);
+    ribRight.position.set(xOffset, 0.28, -0.27);
+    upperGroup.add(ribRight);
+  });
+
+  // 4. External TPU Heel Counter Cup
+  const heelCupGeo = new THREE.CylinderGeometry(0.24, 0.27, 0.16, 24, 1, true, -Math.PI / 2, Math.PI);
+  const heelCup = new THREE.Mesh(heelCupGeo, cageMat);
+  heelCup.position.set(-0.52, 0.22, 0);
+  heelCup.rotation.y = -Math.PI / 2;
+  upperGroup.add(heelCup);
+
+  // 5. Heel Pull Tab
+  const tabGeo = new THREE.BoxGeometry(0.02, 0.12, 0.06);
+  const tabMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.3 });
+  const tab = new THREE.Mesh(tabGeo, tabMat);
+  tab.position.set(-0.68, 0.48, 0);
+  tab.name = 'Drift_Accent_Tab';
+  upperGroup.add(tab);
 
   return upperGroup;
 }
 
-// Extract an independent Sole Group for a specific variant
-export function createSoleModel(gltfScene, stlGeometry, variantId = 'sole-std-01') {
+// Shoe Model 3: LoopStep Ridge (Distinct Rugged Mountain Trail Chassis)
+function buildRidgeUpper() {
+  const upperGroup = new THREE.Group();
+  upperGroup.name = 'ShoeUpper_Ridge';
+
+  // 1. Mid-Cut Protective Trail Chassis
+  const trailShape = new THREE.Shape();
+  trailShape.moveTo(-0.74, 0.02);
+  trailShape.bezierCurveTo(-0.80, 0.28, -0.62, 0.64, -0.20, 0.66);
+  trailShape.bezierCurveTo(0.14, 0.66, 0.44, 0.40, 0.68, 0.14);
+  trailShape.bezierCurveTo(0.74, 0.06, 0.70, 0.01, 0.60, 0.01);
+  trailShape.bezierCurveTo(0.20, 0.01, -0.38, 0.01, -0.74, 0.02);
+
+  const extrudeSettings = {
+    steps: 6,
+    depth: 0.56,
+    bevelEnabled: true,
+    bevelThickness: 0.06,
+    bevelSize: 0.05,
+    bevelSegments: 4
+  };
+  const trailGeo = new THREE.ExtrudeGeometry(trailShape, extrudeSettings);
+  trailGeo.center();
+
+  const mainMat = new THREE.MeshStandardMaterial({
+    color: 0x4a6141,
+    roughness: 0.8,
+    metalness: 0.1,
+    name: 'Ridge_Ripstop_Mesh'
+  });
+  const trailMesh = new THREE.Mesh(trailGeo, mainMat);
+  trailMesh.position.set(0, 0.34, 0);
+  trailMesh.castShadow = true;
+  trailMesh.receiveShadow = true;
+  upperGroup.add(trailMesh);
+
+  // 2. Heavy-Duty Wraparound Rubber Rock Rand & Toe Cap
+  const randGeo = new THREE.CylinderGeometry(0.28, 0.31, 0.10, 32);
+  randGeo.scale(1.85, 1.0, 0.98);
+  const randMat = new THREE.MeshStandardMaterial({
+    color: 0x1e2522,
+    roughness: 0.9,
+    metalness: 0.05,
+    name: 'Ridge_Rock_Rand'
+  });
+  const randMesh = new THREE.Mesh(randGeo, randMat);
+  randMesh.position.set(0, 0.08, 0);
+  upperGroup.add(randMesh);
+
+  // 3. Elevated Padded Ankle Collar & Gusset
+  const cuffGeo = new THREE.TorusGeometry(0.16, 0.045, 16, 32);
+  cuffGeo.rotateX(Math.PI / 2);
+  const cuffMat = new THREE.MeshStandardMaterial({ color: 0x181e1b, roughness: 0.9 });
+  const cuffMesh = new THREE.Mesh(cuffGeo, cuffMat);
+  cuffMesh.position.set(-0.20, 0.64, 0);
+  upperGroup.add(cuffMesh);
+
+  // 4. Metal D-Ring Hardware Lace Anchors (4 pairs)
+  const ringMat = new THREE.MeshStandardMaterial({ color: 0xe7a93b, roughness: 0.25, metalness: 0.85 });
+  [-0.10, 0.05, 0.20, 0.35].forEach((x) => {
+    const dRingGeo = new THREE.TorusGeometry(0.016, 0.005, 8, 16);
+    dRingGeo.rotateY(Math.PI / 2);
+
+    const left = new THREE.Mesh(dRingGeo, ringMat);
+    left.position.set(x, 0.42, 0.22);
+    upperGroup.add(left);
+
+    const right = new THREE.Mesh(dRingGeo, ringMat);
+    right.position.set(x, 0.42, -0.22);
+    upperGroup.add(right);
+  });
+
+  return upperGroup;
+}
+
+// Shoe Model 4: LoopStep Vanguard (Distinct Aero Carbon High-Top)
+function buildVanguardUpper() {
+  const upperGroup = new THREE.Group();
+  upperGroup.name = 'ShoeUpper_Vanguard';
+
+  // 1. Faceted Architectural High-Top Shell
+  const highShape = new THREE.Shape();
+  highShape.moveTo(-0.72, 0.02);
+  highShape.bezierCurveTo(-0.82, 0.35, -0.65, 0.76, -0.25, 0.78);
+  highShape.bezierCurveTo(0.15, 0.78, 0.45, 0.45, 0.70, 0.16);
+  highShape.bezierCurveTo(0.76, 0.06, 0.70, 0.01, 0.60, 0.01);
+  highShape.bezierCurveTo(0.20, 0.01, -0.38, 0.01, -0.72, 0.02);
+
+  const extrudeSettings = {
+    steps: 6,
+    depth: 0.54,
+    bevelEnabled: true,
+    bevelThickness: 0.06,
+    bevelSize: 0.05,
+    bevelSegments: 3
+  };
+  const highGeo = new THREE.ExtrudeGeometry(highShape, extrudeSettings);
+  highGeo.center();
+
+  const shellMat = new THREE.MeshStandardMaterial({
+    color: 0x1e40af,
+    roughness: 0.5,
+    metalness: 0.3,
+    name: 'Vanguard_Aero_Shell'
+  });
+  const highMesh = new THREE.Mesh(highGeo, shellMat);
+  highMesh.position.set(0, 0.40, 0);
+  highMesh.castShadow = true;
+  highMesh.receiveShadow = true;
+  upperGroup.add(highMesh);
+
+  // 2. Sculpted Carbon-Fiber Torsion Stabilizer Wings
+  const wingGeo = new THREE.BoxGeometry(0.36, 0.22, 0.04);
+  const carbonMat = new THREE.MeshStandardMaterial({
+    color: 0x141416,
+    roughness: 0.25,
+    metalness: 0.75,
+    name: 'Vanguard_Carbon_Wings'
+  });
+
+  const wingLeft = new THREE.Mesh(wingGeo, carbonMat);
+  wingLeft.position.set(-0.05, 0.32, 0.28);
+  wingLeft.rotation.z = 0.25;
+  wingLeft.rotation.y = 0.15;
+  upperGroup.add(wingLeft);
+
+  const wingRight = new THREE.Mesh(wingGeo, carbonMat);
+  wingRight.position.set(-0.05, 0.32, -0.28);
+  wingRight.rotation.z = 0.25;
+  wingRight.rotation.y = -0.15;
+  upperGroup.add(wingRight);
+
+  // 3. Aerodynamic Rear Heel Spoiler / Diffuser Blade
+  const spoilerGeo = new THREE.BoxGeometry(0.18, 0.08, 0.36);
+  const spoilerMat = new THREE.MeshStandardMaterial({ color: 0x0c1014, roughness: 0.3, metalness: 0.6 });
+  const spoiler = new THREE.Mesh(spoilerGeo, spoilerMat);
+  spoiler.position.set(-0.74, 0.38, 0);
+  spoiler.rotation.z = -0.35;
+  upperGroup.add(spoiler);
+
+  // 4. Neon Cyber Accent Blade
+  const neonGeo = new THREE.BoxGeometry(0.04, 0.25, 0.02);
+  const neonMat = new THREE.MeshStandardMaterial({ color: 0xc6f135, emissive: 0xc6f135, emissiveIntensity: 0.6 });
+  const neonBlade = new THREE.Mesh(neonGeo, neonMat);
+  neonBlade.position.set(-0.76, 0.45, 0);
+  upperGroup.add(neonBlade);
+
+  return upperGroup;
+}
+
+// Master Shoe Upper Dispatcher
+export function createShoeUpper(gltfScene, shoeIndex = 0) {
+  let upper = null;
+  const shoeDef = SHOE_MODELS[shoeIndex] || SHOE_MODELS[0];
+
+  switch (shoeDef.id) {
+    case 'shoe-01':
+      upper = buildTerraUpper(gltfScene);
+      break;
+    case 'shoe-02':
+      upper = buildDriftUpper();
+      break;
+    case 'shoe-03':
+      upper = buildRidgeUpper();
+      break;
+    case 'shoe-04':
+      upper = buildVanguardUpper();
+      break;
+    default:
+      upper = buildTerraUpper(gltfScene);
+      break;
+  }
+
+  upper.userData = {
+    modelId: shoeDef.id,
+    modelName: shoeDef.name,
+    category: shoeDef.category,
+    basePrice: shoeDef.basePrice
+  };
+
+  return upper;
+}
+
+// =====================================================================
+// SOLE MODEL BUILDERS
+// =====================================================================
+
+// Sole Model 1: Standard Wave-Flex (Preserve Original GLB Sole Exactly)
+function buildStandardSole(gltfScene) {
   const soleGroup = new THREE.Group();
-  soleGroup.name = `Sole_${variantId}`;
+  soleGroup.name = 'Sole_Standard';
+
+  const collectedMeshes = [];
+  const soleBox = new THREE.Box3();
+
+  // Nodes 0 to 20 basement
+  for (let i = 0; i < 20; i++) {
+    const node = gltfScene.children[i];
+    if (!node) continue;
+    const name = (node.name || '').toLowerCase();
+
+    if (!name.includes('basement')) continue;
+
+    const clone = node.clone(true);
+    clone.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        if (Array.isArray(child.material)) {
+          child.material = child.material.map((m) => m.clone());
+        } else if (child.material) {
+          child.material = child.material.clone();
+        }
+      }
+    });
+
+    soleGroup.add(clone);
+    collectedMeshes.push(clone);
+    soleBox.union(new THREE.Box3().setFromObject(clone));
+  }
+
+  const center = soleBox.getCenter(new THREE.Vector3());
+  collectedMeshes.forEach((mesh) => {
+    mesh.position.x -= center.x;
+    mesh.position.z -= center.z;
+  });
+
+  return soleGroup;
+}
+
+// Sole Model 2: Sports Kinetic-Hex (Distinct 12mm Rocker & Hexagonal Cleats)
+function buildSportsSole() {
+  const soleGroup = new THREE.Group();
+  soleGroup.name = 'Sole_Sports';
+
+  // 1. Dual-Density Rocker Midsole (12mm stack with curved forward rocker)
+  const rockerShape = new THREE.Shape();
+  rockerShape.moveTo(-0.76, 0.0);
+  rockerShape.bezierCurveTo(-0.80, 0.08, -0.45, 0.14, 0.0, 0.14);
+  rockerShape.bezierCurveTo(0.45, 0.14, 0.74, 0.10, 0.78, 0.04);
+  rockerShape.bezierCurveTo(0.74, -0.06, 0.45, -0.10, 0.0, -0.10);
+  rockerShape.bezierCurveTo(-0.45, -0.10, -0.74, -0.06, -0.76, 0.0);
+
+  const extrudeSettings = {
+    steps: 6,
+    depth: 0.58,
+    bevelEnabled: true,
+    bevelThickness: 0.04,
+    bevelSize: 0.04,
+    bevelSegments: 4
+  };
+  const rockerGeo = new THREE.ExtrudeGeometry(rockerShape, extrudeSettings);
+  rockerGeo.center();
+
+  const midMat = new THREE.MeshStandardMaterial({
+    color: 0xf4f4f4,
+    roughness: 0.65,
+    metalness: 0.1,
+    name: 'Sports_EVA_Midsole'
+  });
+  const midMesh = new THREE.Mesh(rockerGeo, midMat);
+  midMesh.position.set(0, 0.07, 0);
+  midMesh.castShadow = true;
+  midMesh.receiveShadow = true;
+  soleGroup.add(midMesh);
+
+  // 2. Outsole Base Plate with Rocker Contour
+  const outGeo = new THREE.BoxGeometry(1.54, 0.032, 0.58);
+  const outMat = new THREE.MeshStandardMaterial({
+    color: 0x141416,
+    roughness: 0.8,
+    metalness: 0.1,
+    name: 'Sports_Outsole_Tread'
+  });
+  const outMesh = new THREE.Mesh(outGeo, outMat);
+  outMesh.position.set(0, 0.016, 0);
+  soleGroup.add(outMesh);
+
+  // 3. Prominent Raised Hexagonal Traction Pods (Forefoot & Heel Zones)
+  const hexMat = new THREE.MeshStandardMaterial({
+    color: 0x00f0ff,
+    roughness: 0.7,
+    metalness: 0.2,
+    name: 'Sports_Hex_Pods'
+  });
+
+  const hexPositions = [
+    [-0.50, 0.0, -0.16], [-0.50, 0.0, 0.16], [-0.36, 0.0, 0.0],
+    [0.22, 0.0, -0.18], [0.22, 0.0, 0.18], [0.38, 0.0, -0.14],
+    [0.38, 0.0, 0.14], [0.52, 0.0, 0.0]
+  ];
+
+  hexPositions.forEach(([x, y, z]) => {
+    const hexGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.016, 6);
+    const hexMesh = new THREE.Mesh(hexGeo, hexMat);
+    hexMesh.position.set(x, 0.008, z);
+    soleGroup.add(hexMesh);
+  });
+
+  // 4. Kinetic Rebound Flex Windows on Sidewalls
+  const winMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.2 });
+  [-0.25, 0.0, 0.25].forEach((x) => {
+    const winGeo = new THREE.BoxGeometry(0.12, 0.04, 0.02);
+    const winL = new THREE.Mesh(winGeo, winMat);
+    winL.position.set(x, 0.08, 0.30);
+    soleGroup.add(winL);
+
+    const winR = new THREE.Mesh(winGeo, winMat);
+    winR.position.set(x, 0.08, -0.30);
+    soleGroup.add(winR);
+  });
+
+  return soleGroup;
+}
+
+// Sole Model 3: Trail Deep-Lug Mountain (Distinct 15mm Stack & 5mm Chevron Cleats)
+function buildTrailSole(stlGeometry, useCad = false) {
+  const soleGroup = new THREE.Group();
+  soleGroup.name = 'Sole_Trail';
+
+  if (useCad && stlGeometry) {
+    const cadMat = new THREE.MeshStandardMaterial({
+      color: 0x141416,
+      roughness: 0.45,
+      metalness: 0.4,
+      name: 'Trail_CAD_Tread'
+    });
+    const cadMesh = new THREE.Mesh(stlGeometry, cadMat);
+    cadMesh.rotation.x = -Math.PI / 2;
+    cadMesh.rotation.z = Math.PI / 2;
+    cadMesh.scale.setScalar(0.0068);
+    cadMesh.position.set(0, 0.05, 0);
+    soleGroup.add(cadMesh);
+    return soleGroup;
+  }
+
+  // 1. Heavy-Duty 15mm Mountain Midsole with Rock Plate
+  const trailShape = new THREE.Shape();
+  trailShape.moveTo(-0.78, 0.0);
+  trailShape.bezierCurveTo(-0.82, 0.10, -0.45, 0.16, 0.0, 0.16);
+  trailShape.bezierCurveTo(0.45, 0.16, 0.76, 0.12, 0.80, 0.04);
+  trailShape.bezierCurveTo(0.76, -0.06, 0.45, -0.10, 0.0, -0.10);
+  trailShape.bezierCurveTo(-0.45, -0.10, -0.76, -0.06, -0.78, 0.0);
+
+  const extrudeSettings = {
+    steps: 6,
+    depth: 0.60,
+    bevelEnabled: true,
+    bevelThickness: 0.05,
+    bevelSize: 0.05,
+    bevelSegments: 4
+  };
+  const trailGeo = new THREE.ExtrudeGeometry(trailShape, extrudeSettings);
+  trailGeo.center();
+
+  const midMat = new THREE.MeshStandardMaterial({
+    color: 0x2c312e,
+    roughness: 0.8,
+    metalness: 0.15,
+    name: 'Trail_EVA_Midsole'
+  });
+  const midMesh = new THREE.Mesh(trailGeo, midMat);
+  midMesh.position.set(0, 0.08, 0);
+  midMesh.castShadow = true;
+  midMesh.receiveShadow = true;
+  soleGroup.add(midMesh);
+
+  // 2. High-Traction Outsole Chassis
+  const outGeo = new THREE.BoxGeometry(1.58, 0.04, 0.62);
+  const outMat = new THREE.MeshStandardMaterial({
+    color: 0x4a6141,
+    roughness: 0.85,
+    metalness: 0.1,
+    name: 'Trail_Rubber_Outsole'
+  });
+  const outMesh = new THREE.Mesh(outGeo, outMat);
+  outMesh.position.set(0, 0.02, 0);
+  soleGroup.add(outMesh);
+
+  // 3. Aggressive 5mm Chevron Lugs & Mud Cleats
+  const lugMat = new THREE.MeshStandardMaterial({
+    color: 0xe7a93b,
+    roughness: 0.75,
+    metalness: 0.2,
+    name: 'Trail_Chevron_Cleats'
+  });
+
+  for (let x = -0.62; x <= 0.62; x += 0.14) {
+    [-0.20, 0.0, 0.20].forEach((z) => {
+      const lugGeo = new THREE.ConeGeometry(0.038, 0.03, 4);
+      lugGeo.rotateY(Math.PI / 4);
+      const lug = new THREE.Mesh(lugGeo, lugMat);
+      lug.position.set(x, 0.005, z);
+      soleGroup.add(lug);
+    });
+  }
+
+  // 4. Toe Climbing Teeth Wrap
+  const toeTeethGeo = new THREE.BoxGeometry(0.08, 0.08, 0.28);
+  const toeTeeth = new THREE.Mesh(toeTeethGeo, outMat);
+  toeTeeth.position.set(0.78, 0.08, 0);
+  soleGroup.add(toeTeeth);
+
+  return soleGroup;
+}
+
+// Master Sole Model Dispatcher
+export function createSoleModel(gltfScene, stlGeometry, variantId = 'sole-std-01') {
+  let soleGroup = null;
 
   // Find variant definition
   let foundVariant = null;
@@ -340,81 +819,27 @@ export function createSoleModel(gltfScene, stlGeometry, variantId = 'sole-std-01
     foundVariant = SOLE_CATEGORIES[0].variants[0];
   }
 
-  if (foundVariant.source === 'stl-cad' && stlGeometry) {
-    // Build from precision CAD STL
-    const cadMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(foundVariant.defaultColor),
-      roughness: 0.45,
-      metalness: 0.4
-    });
-    const cadMesh = new THREE.Mesh(stlGeometry, cadMat);
-    cadMesh.name = 'CAD_Tread_Mesh';
-    cadMesh.castShadow = true;
-    cadMesh.receiveShadow = true;
-
-    // Orient and scale STL to match sneaker dimensions (~1.5m length)
-    // STL bounds are ~230 x 185 x 70 mm
-    cadMesh.rotation.x = -Math.PI / 2;
-    cadMesh.rotation.z = Math.PI / 2;
-    cadMesh.scale.setScalar(0.0068);
-    cadMesh.position.set(0, 0.05, 0);
-
-    soleGroup.add(cadMesh);
-  } else {
-    // Extract from GLB Basement nodes
-    // Map source to model index
-    let shoeIndex = 0;
-    if (foundVariant.source === 'glb-model-2') shoeIndex = 1;
-    if (foundVariant.source === 'glb-model-3') shoeIndex = 2;
-    if (foundVariant.source === 'glb-model-4') shoeIndex = 3;
-
-    const shoeDef = SHOE_MODELS[shoeIndex];
-    const [start, end] = shoeDef.nodeRange;
-
-    const collectedMeshes = [];
-    const soleBox = new THREE.Box3();
-
-    for (let i = start; i < end; i++) {
-      const node = gltfScene.children[i];
-      if (!node) continue;
-      const name = (node.name || '').toLowerCase();
-
-      // Only take Basement (sole) nodes
-      if (!name.includes('basement')) continue;
-
-      const clone = node.clone(true);
-      clone.traverse((child) => {
-        if (child.isMesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
-          if (Array.isArray(child.material)) {
-            child.material = child.material.map((m) => m.clone());
-          } else if (child.material) {
-            child.material = child.material.clone();
-          }
-        }
-      });
-
-      soleGroup.add(clone);
-      collectedMeshes.push(clone);
-      soleBox.union(new THREE.Box3().setFromObject(clone));
-    }
-
-    const center = soleBox.getCenter(new THREE.Vector3());
-
-    // Center sole at X=0, Z=0
-    collectedMeshes.forEach((mesh) => {
-      mesh.position.x -= center.x;
-      mesh.position.z -= center.z;
-    });
+  switch (categoryId) {
+    case 'standard':
+      soleGroup = buildStandardSole(gltfScene);
+      break;
+    case 'sports':
+      soleGroup = buildSportsSole();
+      break;
+    case 'trail':
+      soleGroup = buildTrailSole(stlGeometry, foundVariant.source === 'stl-cad');
+      break;
+    default:
+      soleGroup = buildStandardSole(gltfScene);
+      break;
   }
 
-  // Add the patent-pending PA66-GF30 Twist-Lock Adapter Ring on the sole upper face
+  // Add the standardized PA66-GF30 Twist-Lock Adapter Ring on the sole upper face
   const ringGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.014, 32);
   const ringMat = new THREE.MeshStandardMaterial({
     color: new THREE.Color(foundVariant.defaultAccent),
     roughness: 0.3,
-    metalness: 0.8,
+    metalness: 0.85,
     name: 'Sole_PA66_Ring'
   });
   const ringMesh = new THREE.Mesh(ringGeo, ringMat);
@@ -442,7 +867,9 @@ export function createSoleModel(gltfScene, stlGeometry, variantId = 'sole-std-01
   return soleGroup;
 }
 
-// Generate dynamic 2D canvas texture for 3D text decals
+// =====================================================================
+// DYNAMIC 2D CANVAS TEXTURE GENERATOR FOR 3D PERSONALIZATION
+// =====================================================================
 export function createPersonalizationTexture(text, bgColor = '#181e24', textColor = '#c6f135', defaultLabel = 'LOOPSTEP') {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
@@ -481,7 +908,10 @@ export function createPersonalizationTexture(text, bgColor = '#181e24', textColo
   return texture;
 }
 
-// Apply material customizations to Shoe Upper without mutating anything else
+// =====================================================================
+// INDEPENDENT MATERIAL APPLICATION
+// =====================================================================
+
 export function applyShoeCustomization(upperGroup, options = {}) {
   if (!upperGroup) return;
 
@@ -528,17 +958,27 @@ export function applyShoeCustomization(upperGroup, options = {}) {
           return;
         }
 
-        // Leather and plastic overlays
-        if (name.includes('leather') || matName.includes('leather') || name.includes('plastic') || matName.includes('plastic')) {
+        // Leather and plastic overlays / wings / rand / cage
+        if (
+          name.includes('leather') || matName.includes('leather') ||
+          name.includes('plastic') || matName.includes('plastic') ||
+          name.includes('cage') || matName.includes('cage') ||
+          name.includes('rand') || matName.includes('rand') ||
+          name.includes('wing') || matName.includes('wing')
+        ) {
           mat.color.copy(overlayCol);
           mat.roughness = roughness * 0.8;
           mat.metalness = metalness * 1.5;
           mat.needsUpdate = true;
-        } else if (name.includes('stitch') || matName.includes('stitch') || matName.includes('accent')) {
+        } else if (
+          name.includes('stitch') || matName.includes('stitch') ||
+          name.includes('accent') || matName.includes('accent') ||
+          name.includes('tab') || matName.includes('tab')
+        ) {
           mat.color.copy(accentCol);
           mat.needsUpdate = true;
         } else {
-          // Main Fabric / Upper Mesh
+          // Main Upper Body
           mat.color.copy(primaryCol);
           mat.roughness = roughness;
           mat.metalness = metalness;
@@ -548,7 +988,7 @@ export function applyShoeCustomization(upperGroup, options = {}) {
     }
   });
 
-  // Attach or update a dedicated 3D personalization plaque on the upper heel/collar
+  // Dedicated 3D personalization plaque on the upper heel/collar
   let textPlaque = upperGroup.getObjectByName('Shoe_Custom_Plaque');
   if (!textPlaque) {
     const plaqueGeo = new THREE.PlaneGeometry(0.24, 0.07);
@@ -559,7 +999,6 @@ export function applyShoeCustomization(upperGroup, options = {}) {
     });
     textPlaque = new THREE.Mesh(plaqueGeo, plaqueMat);
     textPlaque.name = 'Shoe_Custom_Plaque';
-    // Position on lateral heel collar
     textPlaque.position.set(-0.52, 0.46, 0.22);
     textPlaque.rotation.y = Math.PI / 2.2;
     upperGroup.add(textPlaque);
@@ -569,7 +1008,6 @@ export function applyShoeCustomization(upperGroup, options = {}) {
   }
 }
 
-// Apply material customizations to Sole Group without mutating anything else
 export function applySoleCustomization(soleGroup, options = {}) {
   if (!soleGroup) return;
 
@@ -618,7 +1056,11 @@ export function applySoleCustomization(soleGroup, options = {}) {
           mat.roughness = roughness;
           mat.metalness = metalness;
           mat.needsUpdate = true;
-        } else if (name.includes('point') || matName.includes('point') || matName.includes('accent')) {
+        } else if (
+          name.includes('point') || matName.includes('point') ||
+          name.includes('accent') || matName.includes('hex') ||
+          name.includes('cleat') || matName.includes('cleat')
+        ) {
           mat.color.copy(accCol);
           mat.roughness = roughness;
           mat.metalness = metalness;
@@ -633,7 +1075,7 @@ export function applySoleCustomization(soleGroup, options = {}) {
     }
   });
 
-  // Attach or update laser engraving badge on midfoot sole plate
+  // Laser engraving badge on midfoot sole plate
   let engravePlaque = soleGroup.getObjectByName('Sole_Engrave_Plaque');
   if (!engravePlaque) {
     const engraveGeo = new THREE.PlaneGeometry(0.22, 0.06);
@@ -644,7 +1086,6 @@ export function applySoleCustomization(soleGroup, options = {}) {
     });
     engravePlaque = new THREE.Mesh(engraveGeo, engraveMat);
     engravePlaque.name = 'Sole_Engrave_Plaque';
-    // Position on underside midfoot arch plate
     engravePlaque.rotation.x = Math.PI / 2;
     engravePlaque.position.set(0, -0.01, 0);
     soleGroup.add(engravePlaque);
