@@ -12,6 +12,9 @@ let stlLoadingPromise = null;
 let cachedDriftGltfScene = null;
 let driftGltfLoadingPromise = null;
 
+let cachedRidgeGltfScene = null;
+let ridgeGltfLoadingPromise = null;
+
 // The 4 Distinct Shoe Models & Categories
 export const SHOE_MODELS = [
   {
@@ -49,13 +52,14 @@ export const SHOE_MODELS = [
     tagline: 'Trail-Ready, Adventure-Proof',
     category: 'Outdoor & Hiking',
     basePrice: 2999,
-    description: 'Rugged mid-cut trail chassis with elevated padded ankle cuff, full-perimeter protective rock rand, and metal D-ring lace anchors.',
+    description: 'Authentic rugged ECCO Trail hiking shoe chassis with aggressive multi-surface rock rand, high-traction mud lugs, and reinforced padded ankle collar.',
     nodeRange: [40, 60],
-    defaultColor: '#4A6141', // Deep Moss
+    defaultColor: '#FFFFFF', // Default pure white to showcase authentic ECCO photogrammetry texture without tint
     defaultOverlay: '#1E2522',
     defaultAccent: '#E7A93B',
     thumbnail: '/images/shoe-ridge.jpg',
-    defaultSoleCategory: 'trail'
+    defaultSoleCategory: 'trail',
+    modelAsset: 'eccoblender.obj (worn-hiking-shoes.zip)'
   },
   {
     id: 'shoe-04',
@@ -306,6 +310,79 @@ export function loadDriftGLTF() {
   return driftGltfLoadingPromise;
 }
 
+// Dedicated Trail Shoe (Ridge - ECCO Trail) GLTF Loader with Reconstructed PBR Textures
+export function loadRidgeGLTF() {
+  if (cachedRidgeGltfScene) return Promise.resolve(cachedRidgeGltfScene);
+  if (ridgeGltfLoadingPromise) return ridgeGltfLoadingPromise;
+
+  ridgeGltfLoadingPromise = new Promise((resolve) => {
+    const gltfLoader = new GLTFLoader();
+    const textureLoader = new THREE.TextureLoader();
+
+    // Reconstruct texture channel from worn-hiking-shoes.zip (eccometashape.jpg)
+    const diffuseMap = textureLoader.load('/models/ridge/textures/eccometashape.jpg');
+    diffuseMap.colorSpace = THREE.SRGBColorSpace;
+
+    gltfLoader.load(
+      '/models/ridge/ridge_trail.glb',
+      (gltf) => {
+        const scene = gltf.scene;
+        scene.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+
+            // Apply reconstructed PBR material with supplied texture
+            const pbrMat = new THREE.MeshStandardMaterial({
+              name: 'Ridge_Trail_Reconstructed_PBR',
+              map: diffuseMap,
+              roughness: 0.82,
+              metalness: 0.12,
+              color: 0xffffff
+            });
+            child.material = pbrMat;
+
+            // Ensure UV2 channel is present for ambient occlusion or lighting calculations
+            if (child.geometry && !child.geometry.attributes.uv2 && child.geometry.attributes.uv) {
+              child.geometry.setAttribute('uv2', child.geometry.attributes.uv);
+            }
+          }
+        });
+
+        cachedRidgeGltfScene = scene;
+        resolve(cachedRidgeGltfScene);
+      },
+      undefined,
+      (err) => {
+        console.warn('Could not load ridge_trail.glb, trying trail_shoe_ridge.glb fallback:', err);
+        gltfLoader.load(
+          '/models/trail_shoe_ridge.glb',
+          (fallbackGltf) => {
+            const scene = fallbackGltf.scene;
+            scene.traverse((child) => {
+              if (child.isMesh) {
+                child.material = new THREE.MeshStandardMaterial({
+                  name: 'Ridge_Trail_Reconstructed_PBR',
+                  map: diffuseMap,
+                  roughness: 0.82,
+                  metalness: 0.12,
+                  color: 0xffffff
+                });
+              }
+            });
+            cachedRidgeGltfScene = scene;
+            resolve(cachedRidgeGltfScene);
+          },
+          undefined,
+          () => resolve(null)
+        );
+      }
+    );
+  });
+
+  return ridgeGltfLoadingPromise;
+}
+
 
 // Load CAD STL model once
 export function loadSoleSTL() {
@@ -537,10 +614,49 @@ function buildDriftUpper(driftGltfScene = null) {
   return upperGroup;
 }
 
-// Shoe Model 3: LoopStep Ridge (Distinct Rugged Mountain Trail Chassis)
-function buildRidgeUpper() {
+// Shoe Model 3: LoopStep Ridge (Authentic Rugged Trail Shoe - Reference: eccoblender.obj from worn-hiking-shoes.zip)
+function buildRidgeUpper(ridgeGltfScene = null) {
   const upperGroup = new THREE.Group();
   upperGroup.name = 'ShoeUpper_Ridge';
+
+  // If the authorized GLTF / GLB model is loaded
+  if (ridgeGltfScene) {
+    const importedClone = ridgeGltfScene.clone(true);
+    importedClone.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        if (Array.isArray(child.material)) {
+          child.material = child.material.map((m) => m.clone());
+        } else if (child.material) {
+          child.material = child.material.clone();
+        }
+      }
+    });
+
+    const bbox = new THREE.Box3().setFromObject(importedClone);
+    const size = bbox.getSize(new THREE.Vector3());
+
+    // Scale to standard shoe dimensions (length ~ 1.40m) if not already pre-scaled
+    if (Math.abs(size.x - 1.40) > 0.05 && size.x > 0) {
+      const targetLength = 1.40;
+      const scaleFactor = targetLength / size.x;
+      importedClone.scale.setScalar(scaleFactor);
+
+      // Recompute bbox after scaling
+      const scaledBbox = new THREE.Box3().setFromObject(importedClone);
+      const scaledCenter = scaledBbox.getCenter(new THREE.Vector3());
+      const scaledMin = scaledBbox.min;
+
+      // Center X & Z, and align sole connection plane exactly at datum Y = 0.012m
+      importedClone.position.x = -scaledCenter.x;
+      importedClone.position.z = -scaledCenter.z;
+      importedClone.position.y = 0.012 - scaledMin.y;
+    }
+
+    upperGroup.add(importedClone);
+    return upperGroup;
+  }
 
   // 1. Mid-Cut Protective Trail Chassis
   const trailShape = new THREE.Shape();
@@ -688,7 +804,7 @@ function buildVanguardUpper() {
 }
 
 // Master Shoe Upper Dispatcher
-export function createShoeUpper(gltfScene, shoeIndex = 0, driftGltfScene = null) {
+export function createShoeUpper(gltfScene, shoeIndex = 0, driftGltfScene = null, ridgeGltfScene = null) {
   let upper = null;
   const shoeDef = SHOE_MODELS[shoeIndex] || SHOE_MODELS[0];
 
@@ -700,7 +816,7 @@ export function createShoeUpper(gltfScene, shoeIndex = 0, driftGltfScene = null)
       upper = buildDriftUpper(driftGltfScene);
       break;
     case 'shoe-03':
-      upper = buildRidgeUpper();
+      upper = buildRidgeUpper(ridgeGltfScene);
       break;
     case 'shoe-04':
       upper = buildVanguardUpper();
@@ -1106,6 +1222,19 @@ export function applyShoeCustomization(upperGroup, options = {}) {
         if (name.includes('terrex') || matName.includes('terrex')) {
           if (color.toUpperCase() === '#FFFFFF') {
             mat.color.setHex(0xffffff); // Preserve authentic Adidas Terrex photographic textures
+          } else {
+            mat.color.copy(primaryCol); // Dynamic colorway tint
+          }
+          mat.roughness = roughness;
+          mat.metalness = metalness;
+          mat.needsUpdate = true;
+          return;
+        }
+
+        // Check if Ridge trail shoe model (ECCO photogrammetry model)
+        if (name.includes('ridge') || matName.includes('ridge') || name.includes('ecco') || matName.includes('ecco')) {
+          if (color.toUpperCase() === '#FFFFFF') {
+            mat.color.setHex(0xffffff); // Preserve authentic ECCO photogrammetry texture
           } else {
             mat.color.copy(primaryCol); // Dynamic colorway tint
           }

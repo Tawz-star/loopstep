@@ -479,6 +479,11 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
                         3D Asset: Adidas Terrex
                       </span>
                     )}
+                    {model.id === 'shoe-03' && (
+                      <span style={{ fontSize: '0.68rem', color: '#E7A93B', fontWeight: 600 }}>
+                        3D Asset: ECCO Trail Ridge
+                      </span>
+                    )}
                     <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                       From ₹{model.basePrice}
                     </span>
@@ -512,6 +517,14 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
                   <Sparkles size={12} color="#00F0FF" />
                   <span style={{ fontSize: '0.74rem', color: '#00F0FF', fontWeight: 600 }}>
                     3D Model: Adidas Terrex (High-Detail Trail Chassis & Reconstructed PBR)
+                  </span>
+                </div>
+              )}
+              {activeShoeModel.id === 'shoe-03' && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(231, 169, 59, 0.1)', border: '1px solid rgba(231, 169, 59, 0.25)', padding: '4px 10px', borderRadius: '6px', marginTop: '6px', marginBottom: '4px' }}>
+                  <Sparkles size={12} color="#E7A93B" />
+                  <span style={{ fontSize: '0.74rem', color: '#E7A93B', fontWeight: 600 }}>
+                    3D Model: ECCO Trail (High-Detail Photogrammetry & Reconstructed PBR)
                   </span>
                 </div>
               )}

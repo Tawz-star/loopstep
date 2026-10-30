@@ -19,6 +19,7 @@ import {
 import {
   loadSneakerGLTF,
   loadDriftGLTF,
+  loadRidgeGLTF,
   loadSoleSTL,
   createShoeUpper,
   createSoleModel,
@@ -50,6 +51,7 @@ export default function FootwearViewer3D({
   const gltfSceneRef = useRef(null);
   const stlGeometryRef = useRef(null);
   const driftGltfSceneRef = useRef(null);
+  const ridgeGltfSceneRef = useRef(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -199,16 +201,18 @@ export default function FootwearViewer3D({
 
     window.addEventListener('resize', handleResize);
 
-    // 7. Load raw GLTF, STL & custom Drift 3D assets
+    // 7. Load raw GLTF, STL, custom Drift (Terrex) & Ridge (ECCO Trail) 3D assets
     Promise.all([
       loadSneakerGLTF(),
       loadSoleSTL().catch(() => null),
-      loadDriftGLTF().catch(() => null)
+      loadDriftGLTF().catch(() => null),
+      loadRidgeGLTF().catch(() => null)
     ])
-      .then(([gltf, stl, driftGltf]) => {
+      .then(([gltf, stl, driftGltf, ridgeGltf]) => {
         gltfSceneRef.current = gltf;
         stlGeometryRef.current = stl;
         driftGltfSceneRef.current = driftGltf;
+        ridgeGltfSceneRef.current = ridgeGltf;
         setIsLoading(false);
       })
       .catch((err) => {
@@ -245,7 +249,12 @@ export default function FootwearViewer3D({
 
     // 1. Mount Shoe Upper if mode is 'shoe' or 'assembly'
     if (mode === 'shoe' || mode === 'assembly') {
-      const upper = createShoeUpper(gltfScene, validShoeIdx, driftGltfSceneRef.current);
+      const upper = createShoeUpper(
+        gltfScene,
+        validShoeIdx,
+        driftGltfSceneRef.current,
+        ridgeGltfSceneRef.current
+      );
       applyShoeCustomization(upper, shoeConfig);
       scene.add(upper);
       activeUpperRef.current = upper;
@@ -451,6 +460,27 @@ export default function FootwearViewer3D({
               <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#00F0FF' }} />
               <span style={{ fontSize: '0.72rem', color: '#00F0FF', fontWeight: 700, letterSpacing: '0.03em' }}>
                 3D ASSET: ADIDAS TERREX
+              </span>
+            </div>
+          )}
+
+          {/* ECCO Trail Model Indicator for LoopStep Ridge */}
+          {shoeModelId === 'shoe-03' && (
+            <div
+              style={{
+                pointerEvents: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                backgroundColor: 'rgba(231, 169, 59, 0.1)',
+                border: '1px solid rgba(231, 169, 59, 0.3)',
+                padding: '5px 12px',
+                borderRadius: 'var(--radius-full)'
+              }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#E7A93B' }} />
+              <span style={{ fontSize: '0.72rem', color: '#E7A93B', fontWeight: 700, letterSpacing: '0.03em' }}>
+                3D ASSET: ECCO TRAIL RIDGE
               </span>
             </div>
           )}
