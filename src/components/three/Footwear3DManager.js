@@ -1185,12 +1185,16 @@ export function applyShoeCustomization(upperGroup, options = {}) {
     metalness = 0.05;
   }
 
+  const primaryCol = new THREE.Color(color);
+  const overlayCol = new THREE.Color(overlayColor);
+  const accentCol = new THREE.Color(accentColor);
+
   // =====================================================================
   // LoopStep Drift: 38-Mesh Specific Component-Level Customization
   // =====================================================================
   if (upperGroup.name === 'ShoeUpper_Drift') {
     const driftComponents = options.driftComponents || {};
-    const primaryCol = new THREE.Color(driftComponents.upper || color);
+    const driftPrimaryCol = new THREE.Color(driftComponents.upper || color);
     const toeCol = new THREE.Color(driftComponents.toeOverlay || overlayColor);
     const heelCol = new THREE.Color(driftComponents.heelCounter || overlayColor);
     const tongueCol = new THREE.Color(driftComponents.tongueCollar || driftComponents.upper || color);
@@ -1213,7 +1217,7 @@ export function applyShoeCustomization(upperGroup, options = {}) {
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((mat) => {
           if (name === 'Upper_Main_Panel') {
-            mat.color.copy(primaryCol);
+            mat.color.copy(driftPrimaryCol);
             mat.roughness = roughness;
             mat.metalness = metalness;
             mat.needsUpdate = true;

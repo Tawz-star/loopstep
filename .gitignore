@@ -30,3 +30,7 @@ public/models/鞋底.stl
 public/models/drift/original/textures/
 public/models/ridge/original/textures/
 public/models/ridge/original/source/
+
+.vercel
+.env*
+.playwright-mcp/
