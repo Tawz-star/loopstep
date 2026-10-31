@@ -281,7 +281,7 @@ export default function FootwearViewer3D({
     // Adjust camera target
     if (controlsRef.current) {
       if (mode === 'shoe') {
-        controlsRef.current.target.set(0, 0.32, 0);
+        controlsRef.current.target.set(0, shoeModelId === 'shoe-02' ? 0.38 : 0.32, 0);
       } else if (mode === 'sole') {
         controlsRef.current.target.set(0, 0.08, 0);
       } else {
@@ -395,6 +395,40 @@ export default function FootwearViewer3D({
         </div>
       )}
 
+      {/* Explicit Error Overlay */}
+      {loadError && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(12, 16, 20, 0.94)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            textAlign: 'center',
+            zIndex: 11
+          }}
+        >
+          <span style={{ color: '#ff4d4d', fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '8px' }}>
+            3D Model Load Error
+          </span>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', maxWidth: '420px', lineHeight: 1.5 }}>
+            {loadError}
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="btn-secondary btn-sm"
+            style={{ marginTop: '16px', padding: '8px 18px' }}
+          >
+            Retry Loading
+          </button>
+        </div>
+      )}
+
       {/* Top Floating Viewport Toolbar */}
       <div
         style={{
@@ -443,7 +477,7 @@ export default function FootwearViewer3D({
             </span>
           </div>
 
-          {/* Terrex Model Indicator for LoopStep Drift */}
+          {/* Model Indicator for LoopStep Drift */}
           {shoeModelId === 'shoe-02' && (
             <div
               style={{
@@ -459,7 +493,7 @@ export default function FootwearViewer3D({
             >
               <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#00F0FF' }} />
               <span style={{ fontSize: '0.72rem', color: '#00F0FF', fontWeight: 700, letterSpacing: '0.03em' }}>
-                3D ASSET: ADIDAS TERREX
+                3D ASSET: SPORTS SHOE GLB (38 MESHES)
               </span>
             </div>
           )}

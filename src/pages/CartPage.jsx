@@ -193,6 +193,17 @@ export default function CartPage() {
                             </>
                           )}
                         </div>
+                        {item.customDetails.driftComponents && (
+                          <div style={{ margin: '6px 0', padding: '6px 10px', backgroundColor: 'rgba(198, 241, 53, 0.05)', borderRadius: '6px', border: '1px solid rgba(198, 241, 53, 0.2)', fontSize: '0.68rem', fontFamily: 'var(--font-mono)' }}>
+                            <span style={{ color: 'var(--primary)', fontWeight: 700 }}>LoopStep Drift 38-Mesh Customization:</span>{' '}
+                            Upper: <span style={{ color: '#fff' }}>{item.customDetails.driftComponents.upper}</span> ·{' '}
+                            Overlays: <span style={{ color: '#fff' }}>{item.customDetails.driftComponents.toeOverlay}</span> ·{' '}
+                            Laces: <span style={{ color: '#fff' }}>{item.customDetails.driftComponents.laces}</span> ·{' '}
+                            Eyelets: <span style={{ color: '#fff' }}>{item.customDetails.driftComponents.eyelets}</span> ·{' '}
+                            Midsole: <span style={{ color: '#fff' }}>{item.customDetails.driftComponents.midsole}</span> ·{' '}
+                            Tread Pods: <span style={{ color: '#fff' }}>{item.customDetails.driftComponents.treadPods}</span>
+                          </div>
+                        )}
                         {item.customDetails.shoePersonalization && item.customDetails.shoePersonalization !== 'NONE' && (
                           <div style={{ color: 'var(--primary)' }}>Shoe Personalization: <code>{item.customDetails.shoePersonalization}</code></div>
                         )}

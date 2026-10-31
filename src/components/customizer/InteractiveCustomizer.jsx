@@ -30,6 +30,128 @@ import {
 } from '../three/Footwear3DManager';
 import { useStore } from '../../context/StoreContext';
 
+const DRIFT_PRESETS = [
+  {
+    name: 'Signal Stealth',
+    upper: '#1A1A1A',
+    tongueCollar: '#14171D',
+    toeOverlay: '#2A3440',
+    sideOverlays: '#384452',
+    heelCounter: '#2A3440',
+    laces: '#C6F135',
+    eyelets: '#00F0FF',
+    midsole: '#F4F4F4',
+    outsole: '#141416',
+    treadPods: '#C6F135',
+    pullTab: '#C6F135'
+  },
+  {
+    name: 'Cyber Mint',
+    upper: '#12161A',
+    tongueCollar: '#181E24',
+    toeOverlay: '#1E2630',
+    sideOverlays: '#2D3748',
+    heelCounter: '#1E2630',
+    laces: '#3DF1A8',
+    eyelets: '#3DF1A8',
+    midsole: '#1A202C',
+    outsole: '#0F1318',
+    treadPods: '#3DF1A8',
+    pullTab: '#3DF1A8'
+  },
+  {
+    name: 'Solar Ember',
+    upper: '#221815',
+    tongueCollar: '#1A1210',
+    toeOverlay: '#3A2018',
+    sideOverlays: '#5A2E20',
+    heelCounter: '#3A2018',
+    laces: '#E7A93B',
+    eyelets: '#C8161D',
+    midsole: '#F4F4F4',
+    outsole: '#181210',
+    treadPods: '#E7A93B',
+    pullTab: '#E7A93B'
+  },
+  {
+    name: 'Pure Chalk',
+    upper: '#F4F4F4',
+    tongueCollar: '#E5E7EB',
+    toeOverlay: '#D1D5DB',
+    sideOverlays: '#9CA3AF',
+    heelCounter: '#D1D5DB',
+    laces: '#141416',
+    eyelets: '#C6F135',
+    midsole: '#FFFFFF',
+    outsole: '#374151',
+    treadPods: '#C6F135',
+    pullTab: '#141416'
+  },
+  {
+    name: 'Triple Blackout',
+    upper: '#141416',
+    tongueCollar: '#111315',
+    toeOverlay: '#1F2428',
+    sideOverlays: '#2A3036',
+    heelCounter: '#1F2428',
+    laces: '#2D3748',
+    eyelets: '#4A5568',
+    midsole: '#1A1D20',
+    outsole: '#0D0E10',
+    treadPods: '#2D3748',
+    pullTab: '#374151'
+  }
+];
+
+function ComponentColorPicker({ label, meshHint, value, onChange }) {
+  return (
+    <div style={{ padding: '12px 14px', borderRadius: '12px', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-dim)', marginBottom: '10px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <span style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 700 }}>{label}</span>
+        <span style={{ fontSize: '0.68rem', color: 'var(--primary)', fontFamily: 'var(--font-mono)' }}>{meshHint}</span>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+        {COLOR_OPTIONS.map((col) => {
+          const isSelected = value?.toLowerCase() === col.hex.toLowerCase();
+          return (
+            <button
+              key={col.name}
+              type="button"
+              onClick={() => onChange(col.hex)}
+              title={`${label}: ${col.name}`}
+              style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '6px',
+                backgroundColor: col.hex,
+                border: isSelected ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.15)',
+                cursor: 'pointer',
+                boxShadow: isSelected ? '0 0 8px rgba(198, 241, 53, 0.4)' : 'none',
+                position: 'relative'
+              }}
+            >
+              {isSelected && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: col.hex === '#F4F4F4' ? '#000' : '#fff'
+                  }}
+                >
+                  <Check size={12} />
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function InteractiveCustomizer({ initialCategory = 'standard', onAddToCartSuccess }) {
   const navigate = useNavigate();
   const { addToCart, saveDesign, showToast } = useStore();
@@ -50,6 +172,22 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
   const [shoeMaterial, setShoeMaterial] = useState('recycled-knit');
   const [shoePersonalization, setShoePersonalization] = useState('');
   const [shoeSize, setShoeSize] = useState(42);
+
+  // Dedicated LoopStep Drift (38 Component Meshes) Customization State
+  const [driftComponents, setDriftComponents] = useState({
+    upper: '#1A1A1A',
+    tongueCollar: '#14171D',
+    toeOverlay: '#2A3440',
+    sideOverlays: '#384452',
+    heelCounter: '#2A3440',
+    laces: '#C6F135',
+    eyelets: '#00F0FF',
+    midsole: '#F4F4F4',
+    outsole: '#141416',
+    treadPods: '#C6F135',
+    pullTab: '#C6F135'
+  });
+  const [driftActiveGroup, setDriftActiveGroup] = useState('upper'); // 'upper' | 'overlays' | 'laces' | 'sole' | 'tabs'
 
   // Sole Configuration State
   const [soleCategory, setSoleCategory] = useState(initialCategory || 'standard');
@@ -136,15 +274,27 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
       category: isSoleOnly ? 'Configured Sole' : 'Configured Complete Shoe',
       size: shoeSize,
       edition: activeSoleCategory.name,
+      productId: activeShoeModel.id,
+      modelId: activeShoeModel.id,
+      shoeCategory: activeShoeModel.category,
       customDetails: {
         shoeModel: activeShoeModel.name,
         shoeColor,
         shoeMaterial,
         shoePersonalization: shoePersonalization.trim() || 'NONE',
+        driftComponents: activeShoeModel.id === 'shoe-02' ? { ...driftComponents } : undefined,
+        upperColor: activeShoeModel.id === 'shoe-02' ? driftComponents.upper : shoeColor,
+        toeOverlayColor: activeShoeModel.id === 'shoe-02' ? driftComponents.toeOverlay : shoeOverlayColor,
+        sideOverlayColor: activeShoeModel.id === 'shoe-02' ? driftComponents.sideOverlays : shoeOverlayColor,
+        heelCounterColor: activeShoeModel.id === 'shoe-02' ? driftComponents.heelCounter : shoeOverlayColor,
+        laceColor: activeShoeModel.id === 'shoe-02' ? driftComponents.laces : shoeAccentColor,
+        eyeletColor: activeShoeModel.id === 'shoe-02' ? driftComponents.eyelets : shoeAccentColor,
+        midsoleColor: activeShoeModel.id === 'shoe-02' ? driftComponents.midsole : midsoleColor,
+        outsoleColor: activeShoeModel.id === 'shoe-02' ? driftComponents.outsole : outsoleColor,
+        treadColor: activeShoeModel.id === 'shoe-02' ? driftComponents.treadPods : soleAccentColor,
+        pullTabColor: activeShoeModel.id === 'shoe-02' ? driftComponents.pullTab : shoeAccentColor,
         soleCategory: activeSoleCategory.name,
         soleVariant: activeSoleVariant.name,
-        outsoleColor,
-        midsoleColor,
         ringColor,
         treadPattern,
         surfaceFinish,
@@ -184,6 +334,21 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
     setShoeAccentColor(activeShoeModel.defaultAccent);
     setShoeMaterial('recycled-knit');
     setShoePersonalization('');
+    if (shoeModelId === 'shoe-02') {
+      setDriftComponents({
+        upper: '#1A1A1A',
+        tongueCollar: '#14171D',
+        toeOverlay: '#2A3440',
+        sideOverlays: '#384452',
+        heelCounter: '#2A3440',
+        laces: '#C6F135',
+        eyelets: '#00F0FF',
+        midsole: '#F4F4F4',
+        outsole: '#141416',
+        treadPods: '#C6F135',
+        pullTab: '#C6F135'
+      });
+    }
     showToast('Shoe customization reset to factory defaults', 'info');
   };
 
@@ -433,7 +598,8 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
                 overlayColor: shoeOverlayColor,
                 accentColor: shoeAccentColor,
                 material: shoeMaterial,
-                personalizationText: shoePersonalization
+                personalizationText: shoePersonalization,
+                driftComponents: shoeModelId === 'shoe-02' ? driftComponents : undefined
               }}
             />
 
@@ -476,7 +642,7 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
                     </strong>
                     {model.id === 'shoe-02' && (
                       <span style={{ fontSize: '0.68rem', color: '#00F0FF', fontWeight: 600 }}>
-                        3D Asset: Adidas Terrex
+                        3D Asset: Sports Shoe (38 Meshes)
                       </span>
                     )}
                     {model.id === 'shoe-03' && (
@@ -516,7 +682,7 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(0, 240, 255, 0.1)', border: '1px solid rgba(0, 240, 255, 0.25)', padding: '4px 10px', borderRadius: '6px', marginTop: '6px', marginBottom: '4px' }}>
                   <Sparkles size={12} color="#00F0FF" />
                   <span style={{ fontSize: '0.74rem', color: '#00F0FF', fontWeight: 600 }}>
-                    3D Model: Adidas Terrex (High-Detail Trail Chassis & Reconstructed PBR)
+                    3D Model: Customizable Sports Shoe GLB (38 Meshes & Component Isolation)
                   </span>
                 </div>
               )}
@@ -533,78 +699,258 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
               </p>
             </div>
 
-            {/* 1. Upper Primary Colorway */}
-            <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '10px' }}>
-                Upper Primary Color
-              </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {COLOR_OPTIONS.map((col) => {
-                  const isSelected = shoeColor.toLowerCase() === col.hex.toLowerCase();
-                  return (
-                    <button
-                      key={col.name}
-                      type="button"
-                      onClick={() => setShoeColor(col.hex)}
-                      title={col.name}
-                      style={{
-                        width: '38px',
-                        height: '38px',
-                        borderRadius: '50%',
-                        backgroundColor: col.hex,
-                        border: isSelected ? '3px solid #fff' : '2px solid rgba(255,255,255,0.1)',
-                        cursor: 'pointer',
-                        boxShadow: isSelected ? '0 0 12px rgba(255,255,255,0.4)' : 'none',
-                        position: 'relative'
-                      }}
-                    >
-                      {isSelected && (
-                        <span
+            {/* SHOE COLOR CONTROLS: Drift 38-Mesh Component Customizer vs Standard Category Customizer */}
+            {activeShoeModel.id === 'shoe-02' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                {/* 1. Quick Colorway Presets */}
+                <div>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '8px' }}>
+                    Quick Colorway Presets
+                  </span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {DRIFT_PRESETS.map((preset) => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => {
+                          setDriftComponents({ ...preset });
+                          setShoeColor(preset.upper);
+                          setShoeOverlayColor(preset.toeOverlay);
+                          setShoeAccentColor(preset.laces);
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          backgroundColor: 'rgba(255,255,255,0.03)',
+                          border: '1px solid var(--border-dim)',
+                          color: '#fff',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: preset.laces, border: '1px solid rgba(255,255,255,0.3)' }} />
+                        <span>{preset.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Component Group Tabs */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700 }}>
+                      Component-Level Customizer (38 Meshes)
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 600 }}>
+                      Independent Shading
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
+                    {[
+                      { id: 'upper', label: 'Upper & Tongue' },
+                      { id: 'overlays', label: 'Overlays & Cage' },
+                      { id: 'laces', label: 'Laces & Eyelets' },
+                      { id: 'sole', label: 'Sole Components' },
+                      { id: 'tabs', label: 'Pull Tabs' }
+                    ].map((tab) => {
+                      const isActive = driftActiveGroup === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setDriftActiveGroup(tab.id)}
                           style={{
-                            position: 'absolute',
-                            inset: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: col.hex === '#F4F4F4' ? '#000' : '#fff'
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            backgroundColor: isActive ? 'rgba(198, 241, 53, 0.15)' : 'rgba(255,255,255,0.02)',
+                            border: '1px solid',
+                            borderColor: isActive ? 'var(--primary)' : 'var(--border-dim)',
+                            color: isActive ? 'var(--primary)' : 'var(--text-muted)',
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
                           }}
                         >
-                          <Check size={14} />
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                          {tab.label}
+                        </button>
+                      );
+                    })}
+                  </div>
 
-            {/* 2. Overlay / Cage Color */}
-            <div>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '10px' }}>
-                Structural Overlay / Cage Color
-              </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {COLOR_OPTIONS.slice(0, 6).map((col) => {
-                  const isSelected = shoeOverlayColor.toLowerCase() === col.hex.toLowerCase();
-                  return (
-                    <button
-                      key={`overlay-${col.name}`}
-                      type="button"
-                      onClick={() => setShoeOverlayColor(col.hex)}
-                      title={`Overlay: ${col.name}`}
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        backgroundColor: col.hex,
-                        border: isSelected ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.15)',
-                        cursor: 'pointer'
-                      }}
-                    />
-                  );
-                })}
+                  {/* Component Pickers for Active Tab */}
+                  {driftActiveGroup === 'upper' && (
+                    <div>
+                      <ComponentColorPicker
+                        label="Upper Main Panel"
+                        meshHint="Upper_Main_Panel (Mesh Fabric)"
+                        value={driftComponents.upper}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, upper: hex }))}
+                      />
+                      <ComponentColorPicker
+                        label="Tongue & Collar Padding"
+                        meshHint="Tongue, Collar_Padding (Padded Fabric)"
+                        value={driftComponents.tongueCollar}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, tongueCollar: hex }))}
+                      />
+                    </div>
+                  )}
+
+                  {driftActiveGroup === 'overlays' && (
+                    <div>
+                      <ComponentColorPicker
+                        label="Toe Overlay"
+                        meshHint="Toe_Overlay (Durable Synthetic)"
+                        value={driftComponents.toeOverlay}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, toeOverlay: hex }))}
+                      />
+                      <ComponentColorPicker
+                        label="Side Support Overlays (L/R 1-3)"
+                        meshHint="Side_Overlay_L_1..3, R_1..3"
+                        value={driftComponents.sideOverlays}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, sideOverlays: hex }))}
+                      />
+                      <ComponentColorPicker
+                        label="Heel Counter Cup"
+                        meshHint="Heel_Counter (Rigid Molded TPU)"
+                        value={driftComponents.heelCounter}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, heelCounter: hex }))}
+                      />
+                    </div>
+                  )}
+
+                  {driftActiveGroup === 'laces' && (
+                    <div>
+                      <ComponentColorPicker
+                        label="Athletic Laces (1-5)"
+                        meshHint="Lace_1 to Lace_5 (Braided Textile)"
+                        value={driftComponents.laces}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, laces: hex }))}
+                      />
+                      <ComponentColorPicker
+                        label="Locking Eyelets (L/R 1-5)"
+                        meshHint="Eyelet_L_1..5, Eyelet_R_1..5 (Molded Alloy)"
+                        value={driftComponents.eyelets}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, eyelets: hex }))}
+                      />
+                    </div>
+                  )}
+
+                  {driftActiveGroup === 'sole' && (
+                    <div>
+                      <ComponentColorPicker
+                        label="Midsole Cushion"
+                        meshHint="Midsole_Cushion (Supercritical Foam)"
+                        value={driftComponents.midsole}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, midsole: hex }))}
+                      />
+                      <ComponentColorPicker
+                        label="Outsole Rubber Base"
+                        meshHint="Outsole_Rubber (High-Traction Rubber)"
+                        value={driftComponents.outsole}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, outsole: hex }))}
+                      />
+                      <ComponentColorPicker
+                        label="Tread Pods (1-8)"
+                        meshHint="Tread_Pod_1 to Tread_Pod_8 (Rubber Cleats)"
+                        value={driftComponents.treadPods}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, treadPods: hex }))}
+                      />
+                    </div>
+                  )}
+
+                  {driftActiveGroup === 'tabs' && (
+                    <div>
+                      <ComponentColorPicker
+                        label="Heel Pull Tab & Top"
+                        meshHint="Heel_Pull_Tab, Heel_Pull_Tab_Top (Webbing)"
+                        value={driftComponents.pullTab}
+                        onChange={(hex) => setDriftComponents((p) => ({ ...p, pullTab: hex }))}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <>
+                {/* 1. Upper Primary Colorway */}
+                <div>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '10px' }}>
+                    Upper Primary Color
+                  </span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {COLOR_OPTIONS.map((col) => {
+                      const isSelected = shoeColor.toLowerCase() === col.hex.toLowerCase();
+                      return (
+                        <button
+                          key={col.name}
+                          type="button"
+                          onClick={() => setShoeColor(col.hex)}
+                          title={col.name}
+                          style={{
+                            width: '38px',
+                            height: '38px',
+                            borderRadius: '50%',
+                            backgroundColor: col.hex,
+                            border: isSelected ? '3px solid #fff' : '2px solid rgba(255,255,255,0.1)',
+                            cursor: 'pointer',
+                            boxShadow: isSelected ? '0 0 12px rgba(255,255,255,0.4)' : 'none',
+                            position: 'relative'
+                          }}
+                        >
+                          {isSelected && (
+                            <span
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: col.hex === '#F4F4F4' ? '#000' : '#fff'
+                              }}
+                            >
+                              <Check size={14} />
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. Overlay / Cage Color */}
+                <div>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '10px' }}>
+                    Structural Overlay / Cage Color
+                  </span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {COLOR_OPTIONS.slice(0, 6).map((col) => {
+                      const isSelected = shoeOverlayColor.toLowerCase() === col.hex.toLowerCase();
+                      return (
+                        <button
+                          key={`overlay-${col.name}`}
+                          type="button"
+                          onClick={() => setShoeOverlayColor(col.hex)}
+                          title={`Overlay: ${col.name}`}
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '8px',
+                            backgroundColor: col.hex,
+                            border: isSelected ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.15)',
+                            cursor: 'pointer'
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* 3. Upper Material Selection */}
             <div>
@@ -1016,7 +1362,8 @@ export default function InteractiveCustomizer({ initialCategory = 'standard', on
                 overlayColor: shoeOverlayColor,
                 accentColor: shoeAccentColor,
                 material: shoeMaterial,
-                personalizationText: shoePersonalization
+                personalizationText: shoePersonalization,
+                driftComponents: shoeModelId === 'shoe-02' ? driftComponents : undefined
               }}
               soleVariantId={soleVariantId}
               soleConfig={{

@@ -34,17 +34,17 @@ export const SHOE_MODELS = [
   {
     id: 'shoe-02',
     name: 'LoopStep Drift',
-    tagline: 'High-Performance Outdoor Trail & Sport',
+    tagline: 'High-Performance Athletic & Running',
     category: 'Performance Running',
     basePrice: 2899,
-    description: 'Authentic Adidas Terrex 3D sports shoe chassis with aggressive multi-terrain lugs, engineered breathable ripstop upper, and abrasion-resistant toe guard.',
+    description: 'Precision-engineered sports shoe featuring 38 independent component meshes: breathable sports upper weave, reinforced toe and heel overlays, 3-tier side support struts, 5-point lace and eyelet harness, and full dual-density sole with 8 traction pods.',
     nodeRange: [20, 40],
-    defaultColor: '#FFFFFF', // Default pure white to showcase authentic Terrex diffuse textures without tint
-    defaultOverlay: '#1A1A1A',
-    defaultAccent: '#00F0FF',
+    defaultColor: '#1A1A1A',
+    defaultOverlay: '#2A3440',
+    defaultAccent: '#C6F135',
     thumbnail: '/images/shoe-drift.jpg',
     defaultSoleCategory: 'sports',
-    modelAsset: 'Terrex.obj (adidas-terrex.zip)'
+    modelAsset: 'unbranded_customizable_sports_shoe(1).glb'
   },
   {
     id: 'shoe-03',
@@ -240,68 +240,142 @@ export function loadSneakerGLTF() {
   return gltfLoadingPromise;
 }
 
-// Dedicated Sports Shoe (Drift) GLTF Loader
-// Dedicated Sports Shoe (Drift - Adidas Terrex) GLTF Loader with Reconstructed PBR Textures
+// Component-specific PBR materials for the 38 LoopStep Drift meshes
+export function createDriftComponentMaterial(meshName) {
+  const name = meshName || '';
+
+  if (name === 'Upper_Main_Panel') {
+    return new THREE.MeshStandardMaterial({
+      name: 'Mat_Upper_Main_Panel',
+      color: new THREE.Color('#1A1A1A'),
+      roughness: 0.80,
+      metalness: 0.05
+    });
+  } else if (name === 'Toe_Overlay') {
+    return new THREE.MeshStandardMaterial({
+      name: 'Mat_Toe_Overlay',
+      color: new THREE.Color('#2A3440'),
+      roughness: 0.50,
+      metalness: 0.12
+    });
+  } else if (name === 'Heel_Counter') {
+    return new THREE.MeshStandardMaterial({
+      name: 'Mat_Heel_Counter',
+      color: new THREE.Color('#2A3440'),
+      roughness: 0.32,
+      metalness: 0.28
+    });
+  } else if (name === 'Tongue') {
+    return new THREE.MeshStandardMaterial({
+      name: 'Mat_Tongue',
+      color: new THREE.Color('#181C22'),
+      roughness: 0.82,
+      metalness: 0.04
+    });
+  } else if (name === 'Collar_Padding') {
+    return new THREE.MeshStandardMaterial({
+      name: 'Mat_Collar_Padding',
+      color: new THREE.Color('#14171D'),
+      roughness: 0.88,
+      metalness: 0.02
+    });
+  } else if (name.startsWith('Side_Overlay')) {
+    return new THREE.MeshStandardMaterial({
+      name: `Mat_${name}`,
+      color: new THREE.Color('#384452'),
+      roughness: 0.38,
+      metalness: 0.20
+    });
+  } else if (name.startsWith('Lace_')) {
+    return new THREE.MeshStandardMaterial({
+      name: `Mat_${name}`,
+      color: new THREE.Color('#C6F135'),
+      roughness: 0.68,
+      metalness: 0.05
+    });
+  } else if (name.startsWith('Eyelet_')) {
+    return new THREE.MeshStandardMaterial({
+      name: `Mat_${name}`,
+      color: new THREE.Color('#00F0FF'),
+      roughness: 0.22,
+      metalness: 0.82
+    });
+  } else if (name === 'Outsole_Rubber') {
+    return new THREE.MeshStandardMaterial({
+      name: 'Mat_Outsole_Rubber',
+      color: new THREE.Color('#141416'),
+      roughness: 0.82,
+      metalness: 0.08
+    });
+  } else if (name === 'Midsole_Cushion') {
+    return new THREE.MeshStandardMaterial({
+      name: 'Mat_Midsole_Cushion',
+      color: new THREE.Color('#F4F4F4'),
+      roughness: 0.65,
+      metalness: 0.04
+    });
+  } else if (name.startsWith('Tread_Pod_')) {
+    return new THREE.MeshStandardMaterial({
+      name: `Mat_${name}`,
+      color: new THREE.Color('#C6F135'),
+      roughness: 0.78,
+      metalness: 0.12
+    });
+  } else if (name.startsWith('Heel_Pull_Tab')) {
+    return new THREE.MeshStandardMaterial({
+      name: `Mat_${name}`,
+      color: new THREE.Color('#C6F135'),
+      roughness: 0.65,
+      metalness: 0.10
+    });
+  }
+
+  return new THREE.MeshStandardMaterial({
+    name: `Mat_${name}`,
+    color: new THREE.Color('#2A3440'),
+    roughness: 0.65,
+    metalness: 0.15
+  });
+}
+
+// Dedicated Sports Shoe (Drift) GLTF Loader: unbranded_customizable_sports_shoe(1).glb (38 distinct meshes)
 export function loadDriftGLTF() {
   if (cachedDriftGltfScene) return Promise.resolve(cachedDriftGltfScene);
   if (driftGltfLoadingPromise) return driftGltfLoadingPromise;
 
-  driftGltfLoadingPromise = new Promise((resolve) => {
+  driftGltfLoadingPromise = new Promise((resolve, reject) => {
     const gltfLoader = new GLTFLoader();
-    const textureLoader = new THREE.TextureLoader();
 
-    // Reconstruct all texture channels from adidas-terrex.zip
-    const diffuseMap = textureLoader.load('/models/drift/textures/Terrex_D.jpg');
-    diffuseMap.colorSpace = THREE.SRGBColorSpace;
-
-    const normalMap = textureLoader.load('/models/drift/textures/Terrex_N.jpg');
-    const roughnessMap = textureLoader.load('/models/drift/textures/Terrex_R.jpg');
-    const aoMap = textureLoader.load('/models/drift/textures/Terrex_AO.jpg');
+    const onModelLoaded = (gltf) => {
+      const scene = gltf.scene;
+      scene.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+          if (child.geometry) {
+            child.geometry.computeVertexNormals();
+          }
+          child.material = createDriftComponentMaterial(child.name);
+        }
+      });
+      cachedDriftGltfScene = scene;
+      resolve(cachedDriftGltfScene);
+    };
 
     gltfLoader.load(
-      '/models/drift/terrex_drift.glb',
-      (gltf) => {
-        const scene = gltf.scene;
-        scene.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-
-            // Apply reconstructed PBR material with all supplied texture channels
-            const pbrMat = new THREE.MeshStandardMaterial({
-              name: 'Terrex_Reconstructed_PBR',
-              map: diffuseMap,
-              normalMap: normalMap,
-              normalScale: new THREE.Vector2(1.0, 1.0),
-              roughnessMap: roughnessMap,
-              roughness: 0.85,
-              metalness: 0.15,
-              aoMap: aoMap,
-              aoMapIntensity: 1.0
-            });
-            child.material = pbrMat;
-
-            // Ensure UV2 channel for AO map
-            if (child.geometry && !child.geometry.attributes.uv2 && child.geometry.attributes.uv) {
-              child.geometry.setAttribute('uv2', child.geometry.attributes.uv);
-            }
-          }
-        });
-
-        cachedDriftGltfScene = scene;
-        resolve(cachedDriftGltfScene);
-      },
+      '/models/unbranded_customizable_sports_shoe(1).glb',
+      onModelLoaded,
       undefined,
       (err) => {
-        console.warn('Could not load terrex_drift.glb, trying sports_shoe_drift.glb:', err);
+        console.warn('Could not load /models/unbranded_customizable_sports_shoe(1).glb, trying /models/sports_shoe_drift.glb fallback:', err);
         gltfLoader.load(
           '/models/sports_shoe_drift.glb',
-          (fallbackGltf) => {
-            cachedDriftGltfScene = fallbackGltf.scene;
-            resolve(cachedDriftGltfScene);
-          },
+          onModelLoaded,
           undefined,
-          () => resolve(null)
+          (err2) => {
+            console.error('Failed to load Drift GLB model:', err2);
+            reject(new Error('Failed to load LoopStep Drift 3D model asset.'));
+          }
         );
       }
     );
@@ -460,157 +534,68 @@ function buildTerraUpper(gltfScene) {
   return upperGroup;
 }
 
-// Shoe Model 2: LoopStep Drift (Distinct Aerodynamic Performance Runner - Reference: Sports Shoe – Test by schindelar3d)
+// Shoe Model 2: LoopStep Drift (Authentic 38-Mesh Customizable Sports Shoe - Source: unbranded_customizable_sports_shoe(1).glb)
 function buildDriftUpper(driftGltfScene = null) {
   const upperGroup = new THREE.Group();
   upperGroup.name = 'ShoeUpper_Drift';
 
-  // If the authorized GLTF / GLB model is loaded
-  if (driftGltfScene) {
-    const importedClone = driftGltfScene.clone(true);
-    importedClone.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        if (Array.isArray(child.material)) {
-          child.material = child.material.map((m) => m.clone());
-        } else if (child.material) {
-          child.material = child.material.clone();
-        }
-      }
-    });
-
-    const bbox = new THREE.Box3().setFromObject(importedClone);
-    const size = bbox.getSize(new THREE.Vector3());
-
-    // Scale to standard shoe dimensions (length ~ 1.40m) if not already pre-scaled
-    if (Math.abs(size.x - 1.40) > 0.05 && size.x > 0) {
-      const targetLength = 1.40;
-      const scaleFactor = targetLength / size.x;
-      importedClone.scale.setScalar(scaleFactor);
-
-      // Recompute bbox after scaling
-      const scaledBbox = new THREE.Box3().setFromObject(importedClone);
-      const scaledCenter = scaledBbox.getCenter(new THREE.Vector3());
-      const scaledMin = scaledBbox.min;
-
-      // Center X & Z, and align sole connection plane exactly at datum Y = 0.012m
-      importedClone.position.x = -scaledCenter.x;
-      importedClone.position.z = -scaledCenter.z;
-      importedClone.position.y = 0.012 - scaledMin.y;
-    }
-
-    upperGroup.add(importedClone);
+  if (!driftGltfScene) {
+    console.warn('Drift GLB model asset is not yet loaded.');
     return upperGroup;
   }
 
-  // High-precision Sports Runner Geometry (Modelled directly after Sports Shoe - Test reference)
-  // 1. Aerodynamic Runner Vamp with pronounced toe spring curve
-  const runnerShape = new THREE.Shape();
-  runnerShape.moveTo(-0.72, 0.02);
-  runnerShape.bezierCurveTo(-0.76, 0.16, -0.55, 0.44, -0.18, 0.50);
-  runnerShape.bezierCurveTo(0.18, 0.52, 0.48, 0.32, 0.68, 0.10);
-  runnerShape.bezierCurveTo(0.72, 0.04, 0.68, 0.01, 0.58, 0.01);
-  runnerShape.bezierCurveTo(0.18, 0.01, -0.38, 0.01, -0.72, 0.02);
+  const importedClone = driftGltfScene.clone(true);
+  importedClone.name = 'Drift_GLB_Model';
 
-  const extrudeSettings = {
-    steps: 6,
-    depth: 0.52,
-    bevelEnabled: true,
-    bevelThickness: 0.06,
-    bevelSize: 0.05,
-    bevelSegments: 4
-  };
-  const runnerGeo = new THREE.ExtrudeGeometry(runnerShape, extrudeSettings);
-  runnerGeo.center();
-
-  const mainMat = new THREE.MeshStandardMaterial({
-    color: 0x1a1a1a,
-    roughness: 0.65,
-    metalness: 0.15,
-    name: 'Drift_Main_Mesh'
-  });
-  const runnerMesh = new THREE.Mesh(runnerGeo, mainMat);
-  runnerMesh.position.set(0, 0.28, 0);
-  runnerMesh.castShadow = true;
-  runnerMesh.receiveShadow = true;
-  upperGroup.add(runnerMesh);
-
-  // 2. Anatomical Low-Cut Achilles Collar
-  const collarGeo = new THREE.TorusGeometry(0.13, 0.032, 16, 32);
-  collarGeo.rotateX(Math.PI / 2);
-  const collarMat = new THREE.MeshStandardMaterial({ color: 0x222a33, roughness: 0.8, name: 'Drift_Collar' });
-  const collarMesh = new THREE.Mesh(collarGeo, collarMat);
-  collarMesh.position.set(-0.16, 0.48, 0);
-  upperGroup.add(collarMesh);
-
-  // 3. Padded Sports Tongue
-  const tongueGeo = new THREE.BoxGeometry(0.28, 0.025, 0.15);
-  tongueGeo.rotateZ(0.48);
-  const tongueMat = new THREE.MeshStandardMaterial({ color: 0x1f252d, roughness: 0.8, name: 'Drift_Tongue' });
-  const tongueMesh = new THREE.Mesh(tongueGeo, tongueMat);
-  tongueMesh.position.set(0.04, 0.44, 0);
-  upperGroup.add(tongueMesh);
-
-  // 4. Criss-Cross Sports Laces (4 pairs across athletic instep)
-  const laceMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, roughness: 0.5, metalness: 0.2, name: 'Drift_Laces' });
-  const lacePositions = [-0.08, 0.02, 0.12, 0.22];
-  lacePositions.forEach((x, idx) => {
-    const y = 0.40 - idx * 0.04;
-    // Cross 1
-    const l1Geo = new THREE.CylinderGeometry(0.007, 0.007, 0.17, 8);
-    l1Geo.rotateX(0.7);
-    l1Geo.rotateZ(0.2);
-    const l1 = new THREE.Mesh(l1Geo, laceMat);
-    l1.position.set(x, y + 0.05, 0);
-    upperGroup.add(l1);
-
-    // Cross 2
-    const l2Geo = new THREE.CylinderGeometry(0.007, 0.007, 0.17, 8);
-    l2Geo.rotateX(-0.7);
-    l2Geo.rotateZ(0.2);
-    const l2 = new THREE.Mesh(l2Geo, laceMat);
-    l2.position.set(x, y + 0.05, 0);
-    upperGroup.add(l2);
+  // Ensure each mesh has its own cloned PBR material instance and smooth normals
+  importedClone.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+      if (child.geometry) {
+        child.geometry.computeVertexNormals();
+      }
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material = child.material.map((m) => m.clone());
+        } else {
+          child.material = child.material.clone();
+        }
+      } else {
+        child.material = createDriftComponentMaterial(child.name);
+      }
+    }
   });
 
-  // 5. Lateral TPU Sprint Stabilizer Cage Ribs (3 dynamic diagonal stabilizing struts)
-  const cageMat = new THREE.MeshStandardMaterial({
-    color: 0x2a3440,
-    roughness: 0.3,
-    metalness: 0.4,
-    name: 'Drift_Sprint_Cage'
-  });
+  // Uploaded GLB is Z-up: rotate -90 deg on X to convert to LoopStep standard Three.js Y-up
+  importedClone.rotation.x = -Math.PI / 2;
 
-  [-0.14, 0.02, 0.18].forEach((xOffset) => {
-    const ribGeo = new THREE.CylinderGeometry(0.014, 0.018, 0.32, 16);
-    ribGeo.rotateZ(0.35);
+  // Compute bounding box with rotation applied via a wrapper group
+  const wrapper = new THREE.Group();
+  wrapper.add(importedClone);
+  wrapper.updateMatrixWorld(true);
 
-    // Lateral side
-    const ribLeft = new THREE.Mesh(ribGeo, cageMat);
-    ribLeft.position.set(xOffset, 0.28, 0.27);
-    upperGroup.add(ribLeft);
+  const bbox = new THREE.Box3().setFromObject(wrapper);
+  const size = bbox.getSize(new THREE.Vector3());
 
-    // Medial side
-    const ribRight = new THREE.Mesh(ribGeo, cageMat);
-    ribRight.position.set(xOffset, 0.28, -0.27);
-    upperGroup.add(ribRight);
-  });
+  // Scale to standard shoe dimensions (length = 1.40m)
+  if (size.x > 0) {
+    const targetLength = 1.40;
+    const scaleFactor = targetLength / size.x;
+    importedClone.scale.setScalar(scaleFactor);
+    wrapper.updateMatrixWorld(true);
 
-  // 6. External TPU Heel Counter Cup
-  const heelCupGeo = new THREE.CylinderGeometry(0.24, 0.27, 0.16, 24, 1, true, -Math.PI / 2, Math.PI);
-  const heelCup = new THREE.Mesh(heelCupGeo, cageMat);
-  heelCup.position.set(-0.52, 0.22, 0);
-  heelCup.rotation.y = -Math.PI / 2;
-  upperGroup.add(heelCup);
+    const scaledBbox = new THREE.Box3().setFromObject(wrapper);
+    const scaledCenter = scaledBbox.getCenter(new THREE.Vector3());
+    const scaledMin = scaledBbox.min;
 
-  // 7. Heel Pull Tab with cyber neon accent
-  const tabGeo = new THREE.BoxGeometry(0.02, 0.12, 0.06);
-  const tabMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.3, name: 'Drift_Accent_Tab' });
-  const tab = new THREE.Mesh(tabGeo, tabMat);
-  tab.position.set(-0.68, 0.48, 0);
-  upperGroup.add(tab);
+    // Center X & Z, and align sole connection plane at datum Y = 0.012m
+    importedClone.position.x = -scaledCenter.x;
+    importedClone.position.z = -scaledCenter.z;
+    importedClone.position.y = 0.012 - scaledMin.y;
+  }
 
+  upperGroup.add(importedClone);
   return upperGroup;
 }
 
@@ -1131,6 +1116,9 @@ export function createSoleModel(gltfScene, stlGeometry, variantId = 'sole-std-01
 // DYNAMIC 2D CANVAS TEXTURE GENERATOR FOR 3D PERSONALIZATION
 // =====================================================================
 export function createPersonalizationTexture(text, bgColor = '#181e24', textColor = '#c6f135', defaultLabel = 'LOOPSTEP') {
+  if (typeof document === 'undefined') {
+    return new THREE.Texture();
+  }
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 128;
@@ -1197,9 +1185,121 @@ export function applyShoeCustomization(upperGroup, options = {}) {
     metalness = 0.05;
   }
 
-  const primaryCol = new THREE.Color(color);
-  const overlayCol = new THREE.Color(overlayColor);
-  const accentCol = new THREE.Color(accentColor);
+  // =====================================================================
+  // LoopStep Drift: 38-Mesh Specific Component-Level Customization
+  // =====================================================================
+  if (upperGroup.name === 'ShoeUpper_Drift') {
+    const driftComponents = options.driftComponents || {};
+    const primaryCol = new THREE.Color(driftComponents.upper || color);
+    const toeCol = new THREE.Color(driftComponents.toeOverlay || overlayColor);
+    const heelCol = new THREE.Color(driftComponents.heelCounter || overlayColor);
+    const tongueCol = new THREE.Color(driftComponents.tongueCollar || driftComponents.upper || color);
+    const collarCol = new THREE.Color(driftComponents.tongueCollar || overlayColor);
+    const sideCol = new THREE.Color(driftComponents.sideOverlays || overlayColor);
+    const laceCol = new THREE.Color(driftComponents.laces || accentColor);
+    const eyeletCol = new THREE.Color(driftComponents.eyelets || accentColor);
+    const outsoleCol = new THREE.Color(driftComponents.outsole || '#141416');
+    const midsoleCol = new THREE.Color(driftComponents.midsole || '#F4F4F4');
+    const treadCol = new THREE.Color(driftComponents.treadPods || accentColor);
+    const pullTabCol = new THREE.Color(driftComponents.pullTab || accentColor);
+
+    upperGroup.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const name = child.name;
+
+        // Skip text plaque here; it's handled separately below
+        if (name === 'Shoe_Custom_Plaque') return;
+
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat) => {
+          if (name === 'Upper_Main_Panel') {
+            mat.color.copy(primaryCol);
+            mat.roughness = roughness;
+            mat.metalness = metalness;
+            mat.needsUpdate = true;
+          } else if (name === 'Toe_Overlay') {
+            mat.color.copy(toeCol);
+            mat.roughness = 0.50;
+            mat.metalness = 0.12;
+            mat.needsUpdate = true;
+          } else if (name === 'Heel_Counter') {
+            mat.color.copy(heelCol);
+            mat.roughness = 0.32;
+            mat.metalness = 0.28;
+            mat.needsUpdate = true;
+          } else if (name === 'Tongue') {
+            mat.color.copy(tongueCol);
+            mat.roughness = 0.82;
+            mat.metalness = 0.04;
+            mat.needsUpdate = true;
+          } else if (name === 'Collar_Padding') {
+            mat.color.copy(collarCol);
+            mat.roughness = 0.88;
+            mat.metalness = 0.02;
+            mat.needsUpdate = true;
+          } else if (name.startsWith('Side_Overlay_')) {
+            mat.color.copy(sideCol);
+            mat.roughness = 0.38;
+            mat.metalness = 0.20;
+            mat.needsUpdate = true;
+          } else if (name.startsWith('Lace_')) {
+            mat.color.copy(laceCol);
+            mat.roughness = 0.68;
+            mat.metalness = 0.05;
+            mat.needsUpdate = true;
+          } else if (name.startsWith('Eyelet_')) {
+            mat.color.copy(eyeletCol);
+            mat.roughness = 0.22;
+            mat.metalness = 0.82;
+            mat.needsUpdate = true;
+          } else if (name === 'Outsole_Rubber') {
+            mat.color.copy(outsoleCol);
+            mat.roughness = 0.82;
+            mat.metalness = 0.08;
+            mat.needsUpdate = true;
+          } else if (name === 'Midsole_Cushion') {
+            mat.color.copy(midsoleCol);
+            mat.roughness = 0.65;
+            mat.metalness = 0.04;
+            mat.needsUpdate = true;
+          } else if (name.startsWith('Tread_Pod_')) {
+            mat.color.copy(treadCol);
+            mat.roughness = 0.78;
+            mat.metalness = 0.12;
+            mat.needsUpdate = true;
+          } else if (name.startsWith('Heel_Pull_Tab')) {
+            mat.color.copy(pullTabCol);
+            mat.roughness = 0.65;
+            mat.metalness = 0.10;
+            mat.needsUpdate = true;
+          }
+        });
+      }
+    });
+
+    // Dedicated 3D personalization plaque on heel collar for Drift
+    let textPlaque = upperGroup.getObjectByName('Shoe_Custom_Plaque');
+    const hasPersonalization = personalizationText && personalizationText.trim().length > 0;
+    if (!textPlaque) {
+      const plaqueGeo = new THREE.PlaneGeometry(0.24, 0.07);
+      const plaqueMat = new THREE.MeshBasicMaterial({
+        map: createPersonalizationTexture(hasPersonalization ? personalizationText : 'LOOPSTEP DRIFT', '#141416', laceCol.getStyle(), 'LOOPSTEP DRIFT'),
+        transparent: true,
+        side: THREE.DoubleSide
+      });
+      textPlaque = new THREE.Mesh(plaqueGeo, plaqueMat);
+      textPlaque.name = 'Shoe_Custom_Plaque';
+      textPlaque.position.set(-0.46, 0.50, 0.18);
+      textPlaque.rotation.y = Math.PI / 2.3;
+      upperGroup.add(textPlaque);
+    }
+    textPlaque.visible = hasPersonalization;
+    if (hasPersonalization) {
+      textPlaque.material.map = createPersonalizationTexture(personalizationText, '#141416', laceCol.getStyle(), 'LOOPSTEP DRIFT');
+      textPlaque.material.needsUpdate = true;
+    }
+    return;
+  }
 
   upperGroup.traverse((child) => {
     if (child.isMesh && child.material) {

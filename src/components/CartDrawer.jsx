@@ -143,8 +143,13 @@ export default function CartDrawer({ onCheckout }) {
                     </p>
                     {item.customDetails && (
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.3 }}>
-                        {item.customDetails.shoeModel && <span>Upper: {item.customDetails.shoeModel} · </span>}
+                        {item.customDetails.shoeModel && <span>Shoe: {item.customDetails.shoeModel} · </span>}
                         {item.customDetails.soleVariant && <span>Sole: {item.customDetails.soleVariant}</span>}
+                        {item.customDetails.driftComponents && (
+                          <div style={{ fontSize: '0.68rem', color: 'var(--primary)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
+                            38-Mesh Customization: Laces ({item.customDetails.driftComponents.laces}), Upper ({item.customDetails.driftComponents.upper})
+                          </div>
+                        )}
                         {item.customDetails.shoePersonalization && item.customDetails.shoePersonalization !== 'NONE' && (
                           <div style={{ color: 'var(--primary)' }}>"{item.customDetails.shoePersonalization}"</div>
                         )}
